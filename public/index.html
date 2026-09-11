@@ -8,7 +8,7 @@
         :root {
             --tg-bg: #0f172a;
             --tg-panel: #1e293b;
-            --tg-accent: #2b5278; /* رنگ آبی تلگرامی تیره */
+            --tg-accent: #2b5278;
             --tg-accent-hover: #386799;
             --tg-my-message: #2b5278;
             --tg-other-message: #182533;
@@ -17,81 +17,88 @@
         }
 
         body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background-color: var(--tg-panel); padding: 20px; border-radius: 14px; width: 100%; max-width: 440px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; display: flex; flex-direction: column; height: 90vh; max-height: 750px; }
+        .container { background-color: var(--tg-panel); padding: 18px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 92vh; max-height: 780px; box-sizing: border-box; }
         
-        h2 { margin: 5px 0 15px 0; font-size: 18px; color: #38bdf8; }
-        input, button { width: 100%; padding: 10px 14px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+        h2 { margin: 0; font-size: 16px; color: #38bdf8; }
+        
+        input, button { width: 100%; padding: 10px 12px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
         input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
         input:focus { border-color: #38bdf8; }
         
         button { background-color: var(--tg-accent); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:hover { background-color: var(--tg-accent-hover); }
-        .btn-warning { background-color: #eab308; color: #000; text-decoration: none; display: inline-block; box-sizing: border-box; text-align: center; }
-        .btn-warning:hover { background-color: #ca8a04; }
+        .btn-danger { background-color: #ef4444; font-size: 11px; padding: 5px 10px; width: auto; margin: 0; }
+        .btn-danger:hover { background-color: #dc2626; }
         .btn-secondary { background-color: #334155; }
         .btn-secondary:hover { background-color: #475569; }
         
         .donate-header-btn {
             background-color: #db2777; color: white; text-decoration: none; display: block;
-            padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.2s;
+            padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 8px;
         }
         .donate-header-btn:hover { background-color: #be185d; }
 
-        .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
+        .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; }
         .game-selector button { background: #334155; font-size: 10px; padding: 6px 2px; margin: 0; }
         .game-selector button.active { background: #2b5278; border-bottom: 2px solid #38bdf8; }
 
-        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 6px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
         .hidden { display: none !important; }
-        #status-msg { font-weight: bold; margin: 6px 0; color: #38bdf8; font-size: 13px; }
+        #status-msg { font-weight: bold; margin: 4px 0; color: #38bdf8; font-size: 12px; }
         
-        /* بازی‌ها */
-        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px auto; max-width: 220px; }
-        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 55px; font-size: 24px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
-        .xo-cell:hover { background: #1e293b; border-color: #38bdf8; }
+        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px auto; max-width: 200px; }
+        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 50px; font-size: 22px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
+        .xo-cell:hover { background: #1e293b; }
 
-        .dice-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; }
-        .dice-result-text { font-size: 13px; line-height: 1.5; text-align: right; margin-top: 5px; }
+        .dice-box { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin: 4px 0; }
+        .dice-result-text { font-size: 12px; line-height: 1.4; text-align: right; margin-top: 4px; }
 
-        .hokm-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; text-align: center; }
-        .suit-btn { display: inline-block; width: 38px; height: 38px; margin: 3px; font-size: 18px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
+        .hokm-box { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin: 4px 0; text-align: center; }
+        .suit-btn { display: inline-block; width: 34px; height: 34px; margin: 2px; font-size: 16px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
         .suit-btn:hover { background: #2b5278; }
         
-        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 6px; max-height: 130px; overflow-y: auto; }
-        .card-item { background: #fff; color: #000; width: 36px; height: 50px; border-radius: 4px; font-weight: bold; font-size: 13px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: 0.15s; }
-        .card-item:hover { transform: translateY(-3px); background: #f1f5f9; }
+        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; max-height: 110px; overflow-y: auto; }
+        .card-item { background: #fff; color: #000; width: 34px; height: 46px; border-radius: 4px; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-        /* بخش چت تلگرامی */
-        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 8px; margin-top: 8px; border: 1px solid #1e293b; overflow: hidden; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 13px; margin-bottom: 8px; padding: 4px; display: flex; flex-direction: column; gap: 6px; text-align: right; }
+        /* بخش هدیه سکه */
+        .gift-box { background: rgba(255,255,255,0.03); padding: 6px; border-radius: 6px; margin-top: 6px; display: flex; gap: 4px; align-items: center; }
+        .gift-box input { margin: 0; padding: 6px; font-size: 11px; }
+        .gift-box button { margin: 0; padding: 6px; font-size: 11px; width: 80px; background-color: #10b981; }
+        .gift-box button:hover { background-color: #059669; }
+
+        /* چت تلگرامی */
+        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 6px; margin-top: 6px; border: 1px solid #1e293b; overflow: hidden; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 12px; margin-bottom: 6px; padding: 4px; display: flex; flex-direction: column; gap: 5px; text-align: right; }
         
-        /* حباب‌های پیام استایل تلگرام */
-        .message-bubble { max-width: 80%; padding: 8px 12px; border-radius: 10px; word-wrap: break-word; line-height: 1.4; position: relative; }
+        .message-bubble { max-width: 80%; padding: 6px 10px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
         .message-bubble.my-message { background-color: var(--tg-my-message); align-self: flex-start; border-bottom-right-radius: 2px; }
         .message-bubble.other-message { background-color: var(--tg-other-message); align-self: flex-end; border-bottom-left-radius: 2px; }
-        .msg-sender { font-size: 11px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
+        .msg-sender { font-size: 10px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
         
-        .chat-input-row { display: flex; gap: 6px; margin: 0; }
-        .chat-input-row input { text-align: right; padding: 8px 10px; margin: 0; font-size: 13px; }
-        .chat-input-row button { width: 65px; margin: 0; padding: 8px; font-size: 13px; border-radius: 8px; }
+        .chat-input-row { display: flex; gap: 4px; margin: 0; }
+        .chat-input-row input { text-align: right; padding: 6px 8px; margin: 0; font-size: 12px; }
+        .chat-input-row button { width: 55px; margin: 0; padding: 6px; font-size: 12px; border-radius: 6px; }
 
-        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 8px; }
-        .bank-box { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 12px; text-align: center; }
-        .error-msg { color: #ef4444; font-size: 12px; margin: 4px 0; }
-        .success-msg { color: #4ade80; font-size: 12px; margin: 4px 0; }
+        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 6px; }
+        .error-msg { color: #ef4444; font-size: 11px; margin: 3px 0; }
+        .success-msg { color: #4ade80; font-size: 11px; margin: 3px 0; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>گپ و بازی آنلاین 💬🎮</h2>
+        <div class="header-row">
+            <h2>گپ و بازی آنلاین 💬</h2>
+            <button id="btn-leave" class="btn-danger hidden" onclick="leaveGroup()">خروج از گروه 🚪</button>
+        </div>
         
         <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی</a>
 
         <!-- فرم ورود و ثبت‌نام -->
         <div id="auth-section">
             <div id="login-form">
-                <p style="font-size: 14px; margin: 5px 0;">ورود به حساب کاربری:</p>
+                <p style="font-size: 13px; margin: 4px 0;">ورود به حساب کاربری:</p>
                 <input type="text" id="login-user" placeholder="نام کاربری">
                 <input type="password" id="login-pass" placeholder="رمز عبور">
                 <button onclick="loginUser()">ورود</button>
@@ -100,24 +107,24 @@
             </div>
 
             <div id="register-form" class="hidden">
-                <p style="font-size: 14px; margin: 5px 0;">ثبت‌نام حساب جدید:</p>
+                <p style="font-size: 13px; margin: 4px 0;">ثبت‌نام حساب جدید:</p>
                 <input type="text" id="reg-user" placeholder="نام کاربری دلخواه">
                 <input type="password" id="reg-pass" placeholder="رمز عبور دلخواه">
                 <button onclick="registerUser()">ثبت‌نام و ساخت اکانت</button>
-                <button class="btn-secondary" onclick="showLogin()">بازگشت به صفحه ورود</button>
+                <button class="btn-secondary" onclick="showLogin()">بازگشت به ورود</button>
                 <div id="reg-alert" class="error-msg"></div>
             </div>
         </div>
 
         <!-- لابی گروه -->
         <div id="lobby" class="hidden">
-            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 14px;"></p>
-            <p style="font-size: 13px;">نام گروه (اتاق) را وارد کنید:</p>
+            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 13px;"></p>
+            <p style="font-size: 12px;">نام گروه را وارد کنید:</p>
             <input type="text" id="room-code" placeholder="نام گروه (مثلاً: dorehami)">
             <button onclick="connectRoom()">ورود به گروه</button>
         </div>
 
-        <!-- محیط اصلی گروه (چت و بازی‌ها) -->
+        <!-- محیط اصلی گروه -->
         <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
             <div class="game-selector">
                 <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ</button>
@@ -127,20 +134,20 @@
             </div>
 
             <div class="stats">
-                <div>💰 سکه: <span id="my-coins">300</span></div>
+                <div>💰 سکه شما: <span id="my-coins">300</span></div>
                 <div id="player-count-box">👥 نفرات: <span id="player-count">1</span>/4</div>
             </div>
 
             <div id="status-msg">در انتظار دوستان...</div>
 
-            <!-- بخش‌های بازی -->
+            <!-- بازی‌ها -->
             <div id="rps-section">
                 <div id="controls" class="hidden">
                     <button onclick="makeMove('سنگ')">✊ سنگ</button>
                     <button onclick="makeMove('کاغذ')">✋ کاغذ</button>
                     <button onclick="makeMove('قیچی')">✌️ قیچی</button>
                 </div>
-                <div id="result-box" class="hidden"></div>
+                <div id="result-box" class="hidden" style="font-size: 12px; margin: 4px 0;"></div>
             </div>
 
             <div id="xo-section" class="hidden">
@@ -160,31 +167,28 @@
             <div id="dice-section" class="hidden">
                 <div class="dice-box">
                     <button id="btn-roll" onclick="rollDice()">🎲 انداختن تاس</button>
-                    <div id="dice-result" class="dice-result-text">هنوز تاسی انداخته نشده است.</div>
+                    <div id="dice-result" class="dice-result-text">هنوز تاسی انداخته نشده.</div>
                 </div>
             </div>
 
             <div id="hokm-section" class="hidden">
                 <div class="hokm-box">
-                    <div id="hokm-info" style="font-size: 12px;">در انتظار تکمیل ۴ بازیکن...</div>
+                    <div id="hokm-info" style="font-size: 11px;">در انتظار تکمیل ۴ بازیکن...</div>
                     <div id="hokm-controls" class="hidden">
-                        <p style="font-size: 12px; margin: 4px 0;">انتخاب حکم:</p>
                         <button class="suit-btn" onclick="selectHokm('♠️')">♠️</button>
                         <button class="suit-btn" onclick="selectHokm('♥️')">♥️</button>
                         <button class="suit-btn" onclick="selectHokm('♦️')">♦️</button>
                         <button class="suit-btn" onclick="selectHokm('♣️')">♣️</button>
                     </div>
-                    <div>
-                        <div id="my-cards" class="cards-container"></div>
-                    </div>
+                    <div id="my-cards" class="cards-container"></div>
                 </div>
             </div>
 
-            <!-- ورشکستگی -->
-            <div id="buy-section" class="hidden">
-                <p style="color: #ef4444; font-weight: bold; font-size: 13px;">سکه‌های شما تمام شد! 😢</p>
-                <div class="bank-box">برای دریافت ۳۰۰ سکه جدید حمایت کنید:</div>
-                <a href="https://daramet.com/yasinafzhooli" target="_blank" class="btn-warning" style="margin-top: 6px; padding: 8px; font-size: 12px;">💳 پرداخت و خرید ۳۰۰ سکه</a>
+            <!-- بخش هدیه دادن سکه به دوستان -->
+            <div class="gift-box">
+                <input type="text" id="gift-user" placeholder="نام کاربری دوست..." style="flex: 2;">
+                <input type="number" id="gift-amount" placeholder="مقدار" style="flex: 1;">
+                <button onclick="sendCoinGift()">هدیه 🎁</button>
             </div>
 
             <!-- چت تلگرامی -->
@@ -279,11 +283,36 @@
                 return;
             }
             currentRoom = code;
-            socket.emit('join-room', { roomId: currentRoom, playerName: myName });
+            socket.emit('join-room', { roomId: currentRoom, username: myName });
 
             document.getElementById('lobby').classList.add('hidden');
             document.getElementById('game-room').classList.remove('hidden');
+            document.getElementById('btn-leave').classList.remove('hidden');
         }
+
+        // خروج از گروه و بازگشت به لابی
+        function leaveGroup() {
+            location.reload();
+        }
+
+        function sendCoinGift() {
+            const targetUser = document.getElementById('gift-user').value.trim();
+            const amount = document.getElementById('gift-amount').value.trim();
+            if (!targetUser || !amount) {
+                alert('نام کاربری و مقدار سکه را وارد کنید.');
+                return;
+            }
+            socket.emit('transfer-coins', { targetUser, amount, senderUser: myName });
+        }
+
+        socket.on('transfer-result', (data) => {
+            alert(data.message);
+            if (data.success) {
+                document.getElementById('my-coins').innerText = data.newCoins;
+                document.getElementById('gift-user').value = '';
+                document.getElementById('gift-amount').value = '';
+            }
+        });
 
         socket.on('joined', (data) => {
             document.getElementById('my-coins').innerText = data.coins;
@@ -349,7 +378,6 @@
                 document.getElementById('btn-rps').classList.add('active');
                 document.getElementById('rps-section').classList.remove('hidden');
                 document.getElementById('controls').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'سنگ‌کاغذ‌قیچی فعال شد.';
             } else if (data.gameType === 'xo') {
                 document.getElementById('btn-xo').classList.add('active');
                 document.getElementById('xo-section').classList.remove('hidden');
@@ -357,11 +385,9 @@
             } else if (data.gameType === 'dice') {
                 document.getElementById('btn-dice').classList.add('active');
                 document.getElementById('dice-section').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'تاس‌بازی چندنفره فعال شد.';
             } else if (data.gameType === 'hokm') {
                 document.getElementById('btn-hokm').classList.add('active');
                 document.getElementById('hokm-section').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'بازی حکم فعال شد.';
             }
         });
 
@@ -369,10 +395,10 @@
             renderMyCards(data.hand);
             if (data.isHakem) {
                 document.getElementById('hokm-controls').classList.remove('hidden');
-                document.getElementById('hokm-info').innerText = 'شما حاکم هستید! حکم را انتخاب کنید.';
+                document.getElementById('hokm-info').innerText = 'شما حاکم هستید!';
             } else {
                 document.getElementById('hokm-controls').classList.add('hidden');
-                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب حکم...`;
+                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب...`;
             }
         });
 
@@ -392,27 +418,14 @@
             hand.forEach(card => {
                 const cardEl = document.createElement('div');
                 cardEl.className = 'card-item';
-                if (card.suit === '♥️' || card.suit === '♦️') {
-                    cardEl.style.color = '#ef4444';
-                }
+                if (card.suit === '♥️' || card.suit === '♦️') cardEl.style.color = '#ef4444';
                 cardEl.innerText = card.name;
-                cardEl.onclick = () => playCard(card);
+                cardEl.onclick = () => socket.emit('play-card', { roomId: currentRoom, card });
                 container.appendChild(cardEl);
             });
         }
 
-        function playCard(card) {
-            socket.emit('play-card', { roomId: currentRoom, card });
-        }
-
-        socket.on('card-played', (data) => {
-            renderMyCards(data.hand);
-        });
-
-        socket.on('clear-table', (data) => {});
-
         function makeMove(move) {
-            document.getElementById('status-msg').innerText = `انتخاب (${move}) ثبت شد.`;
             document.getElementById('controls').classList.add('hidden');
             socket.emit('make-move', { roomId: currentRoom, move: move });
         }
@@ -422,11 +435,7 @@
             const resBox = document.getElementById('result-box');
             resBox.classList.remove('hidden');
             resBox.innerHTML = `شما: ${data.myMove} | حریف: ${data.oppMove} <br><b style="color: #4ade80;">${data.result}</b>`;
-
-            checkBankruptcy(data.myCoins);
-            if (data.myCoins > 0) {
-                document.getElementById('controls').classList.remove('hidden');
-            }
+            document.getElementById('controls').classList.remove('hidden');
         });
 
         function makeXoMove(index) {
@@ -434,24 +443,15 @@
             socket.emit('make-xo-move', { roomId: currentRoom, index });
         }
 
-        socket.on('xo-update', (data) => {
-            updateXoBoard(data.board, data.xoTurn);
-        });
-
+        socket.on('xo-update', (data) => { updateXoBoard(data.board, data.xoTurn); });
         socket.on('xo-game-over', (data) => {
             updateXoBoard(data.board, null);
             document.getElementById('my-coins').innerText = data.myCoins1;
-            checkBankruptcy(Number(document.getElementById('my-coins').innerText));
         });
 
         function updateXoBoard(board, turn) {
             const cells = document.querySelectorAll('.xo-cell');
             cells.forEach((cell, idx) => { cell.innerText = board[idx]; });
-            if (turn === socket.id) {
-                document.getElementById('status-msg').innerText = 'نوبت شماست (دوز)';
-            } else {
-                document.getElementById('status-msg').innerText = 'نوبت حریف...';
-            }
         }
 
         function rollDice() {
@@ -459,38 +459,17 @@
             socket.emit('roll-dice', { roomId: currentRoom });
         }
 
-        socket.on('dice-rolled-status', (data) => {
-            document.getElementById('status-msg').innerText = `${data.playerName} تاس انداخت...`;
-        });
-
         socket.on('dice-round-result', (data) => {
             let text = '<b>نتایج تاس:</b><br>';
             for (let pId in data.rolls) {
                 text += `${data.names[pId]}: ${data.rolls[pId]}<br>`;
             }
             document.getElementById('dice-result').innerHTML = text;
-            
             if (data.scores[socket.id] !== undefined) {
                 document.getElementById('my-coins').innerText = data.scores[socket.id];
-                checkBankruptcy(data.scores[socket.id]);
             }
-
-            setTimeout(() => {
-                if (Number(document.getElementById('my-coins').innerText) > 0) {
-                    document.getElementById('btn-roll').removeAttribute('disabled');
-                }
-            }, 3000);
+            setTimeout(() => { document.getElementById('btn-roll').removeAttribute('disabled'); }, 2000);
         });
-
-        function checkBankruptcy(coins) {
-            if (coins <= 0) {
-                document.getElementById('controls').classList.add('hidden');
-                document.getElementById('xo-section').classList.add('hidden');
-                document.getElementById('dice-section').classList.add('hidden');
-                document.getElementById('hokm-section').classList.add('hidden');
-                document.getElementById('buy-section').classList.remove('hidden');
-            }
-        }
 
         function checkEnter(event) {
             if (event.key === 'Enter') {
@@ -513,35 +492,27 @@
             appendMessage(data.senderName, data.message, false);
         });
 
-        // تابع ساخت حباب پیام با استایل تلگرام (تشخیص پیام خودم و دیگران)
+        socket.on('load-chat-history', (history) => {
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML = '';
+            history.forEach(chat => {
+                appendMessage(chat.senderName, chat.message, (chat.senderName === myName));
+            });
+        });
+
         function appendMessage(sender, text, isMe) {
             const chatBox = document.getElementById('chat-messages');
             const bubble = document.createElement('div');
             bubble.className = `message-bubble ${isMe ? 'my-message' : 'other-message'}`;
             
             let content = '';
-            if (!isMe) {
-                content += `<span class="msg-sender">${sender}</span>`;
-            }
+            if (!isMe) content += `<span class="msg-sender">${sender}</span>`;
             content += `<span>${text}</span>`;
             bubble.innerHTML = content;
 
             chatBox.appendChild(bubble);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
-        socket.on('opponent-left', (msg) => {
-            document.getElementById('status-msg').innerText = msg;
-        });
-        // بارگذاری تاریخچه چت‌های قبلی گروه موقع ورود
-socket.on('load-chat-history', (history) => {
-    const chatBox = document.getElementById('chat-messages');
-    chatBox.innerHTML = ''; // پاکسازی باکس
-    history.forEach(chat => {
-        const isMe = (chat.senderName === myName);
-        appendMessage(chat.senderName, chat.message, isMe);
-    });
-});
     </script>
 </body>
 </html>

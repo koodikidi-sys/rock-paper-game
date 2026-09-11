@@ -11,11 +11,9 @@ const io = new Server(server);
 app.use(express.static('public'));
 app.use(express.json());
 
-// مسیر فایل‌های ذخیره‌سازی داده‌ها
 const USERS_FILE = path.join(__dirname, 'users.json');
 const CHATS_FILE = path.join(__dirname, 'chats.json');
 
-// توابع کمکی برای خواندن و نوشتن فایل‌ها
 function loadData(file) {
     if (fs.existsSync(file)) {
         try {
@@ -31,11 +29,9 @@ function saveData(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
 
-// بارگذاری اولیه داده‌ها از فایل
 let users = loadData(USERS_FILE);
-let roomChats = loadData(CHATS_FILE); // ذخیره پیام‌های هر اتاق/گروه
+let roomChats = loadData(CHATS_FILE);
 
-// مدیریت ثبت‌نام با ذخیره در فایل
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -45,11 +41,10 @@ app.post('/api/register', (req, res) => {
         return res.json({ success: false, message: 'این نام کاربری قبلاً ثبت‌نام کرده است!' });
     }
     users[username] = { password, coins: 300 };
-    saveData(USERS_FILE, users); // ذخیره دائمی
-    res.json({ success: true, message: 'ثبت‌نام با موفقیت انجام شد! حالا وارد شوید.' });
+    saveData(USERS_FILE, users);
+    res.json({ success: true, message: 'ثبت‌نام با موفقیت انجام شد!' });
 });
 
-// مدیریت ورود
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     if (!users[username] || users[username].password !== password) {
@@ -59,7 +54,6 @@ app.post('/api/login', (req, res) => {
 });
 
 let rooms = {};
-
 const valuesOrder = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
 
 function createDeck() {
@@ -81,7 +75,7 @@ function createDeck() {
 io.on('connection', (socket) => {
     console.log('یک کاربر وصل شد:', socket.id);
 
-    socket.on('join-room', ({ roomId, playerName }) => {
+    socket.on('join-room', ({ roomId, username }) => {
         socket.rooms.forEach(r => {
             if (r !== socket.id) socket.leave(r);
         });
@@ -91,8 +85,8 @@ io.on('connection', (socket) => {
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 players: [],
+                usernames: {},
                 scores: {},
-                names: {},
                 gameType: 'rps',
                 choices: {},
                 xoBoard: Array(9).fill(''),
@@ -116,18 +110,20 @@ io.on('connection', (socket) => {
 
             if (room.players.length < maxPlayers) {
                 room.players.push(socket.id);
-                room.scores[socket.id] = (users[playerName] ? users[playerName].coins : 300);
-                room.names[socket.id] = playerName || 'بازیکن';
+                room.usernames[socket.id] = username;
+                
+                // مقداردهی سکه بر اساس پروفایل کاربر در دیتابیس
+                if (!users[username].coins) users[username].coins = 300;
+                room.scores[socket.id] = users[username].coins;
 
                 socket.emit('joined', { coins: room.scores[socket.id] });
 
-                // ارسال تاریخچه چت‌های قبلی این گروه به کاربر جدید
                 if (roomChats[roomId]) {
                     socket.emit('load-chat-history', roomChats[roomId]);
                 }
 
                 io.to(roomId).emit('update-players', {
-                    players: room.players.map(id => room.names[id]),
+                    players: room.players.map(id => room.usernames[id]),
                     count: room.players.length
                 });
 
@@ -140,9 +136,42 @@ io.on('connection', (socket) => {
                     io.to(roomId).emit('start-game', { msg: 'بازی شروع شد!' });
                 }
             } else {
-                socket.emit('room-full', 'ظرفیت این اتاق پر است!');
+                socket.emit('room-full', 'ظرفیت این گروه پر است!');
                 return;
             }
+        }
+    });
+
+    // هدیه دادن سکه به کاربر دیگر
+    socket.on('transfer-coins', ({ targetUser, amount, senderUser }) => {
+        amount = parseInt(amount);
+        if (isNaN(amount) || amount <= 0) {
+            socket.emit('transfer-result', { success: false, message: 'مقدار سکه نامعتبر است.' });
+            return;
+        }
+        if (!users[targetUser]) {
+            socket.emit('transfer-result', { success: false, message: 'کاربر مورد نظر یافت نشد.' });
+            return;
+        }
+        if (senderUser === targetUser) {
+            socket.emit('transfer-result', { success: false, message: 'نمی‌توانید به خودتان سکه دهید!' });
+            return;
+        }
+        if (users[senderUser].coins < amount) {
+            socket.emit('transfer-result', { success: false, message: 'سکه‌های شما برای این انتقال کافی نیست.' });
+            return;
+        }
+
+        // کسر از فرستنده و افزودن به گیرنده
+        users[senderUser].coins -= amount;
+        users[targetUser].coins += amount;
+        saveData(USERS_FILE, users);
+
+        socket.emit('transfer-result', { success: true, message: `${amount} سکه به ${targetUser} هدیه داده شد!`, newCoins: users[senderUser].coins });
+        
+        // به‌روزرسانی سکه اگر کاربر آنلاین باشد
+        for (let sId in io.sockets.sockets) {
+            // آپدیت برای فرستنده و گیرنده در صورت حضور
         }
     });
 
@@ -152,7 +181,7 @@ io.on('connection', (socket) => {
 
         const maxPlayers = (gameType === 'dice' || gameType === 'hokm') ? 4 : 2;
         if (room.players.length > maxPlayers) {
-            socket.emit('room-full', 'تعداد بازیکنان این اتاق برای این بازی زیاد است!');
+            socket.emit('room-full', 'تعداد بازیکنان این گروه برای این بازی زیاد است!');
             return;
         }
 
@@ -169,139 +198,20 @@ io.on('connection', (socket) => {
         }
     });
 
-    function startHokmGame(roomId) {
-        let room = rooms[roomId];
-        room.hokmState = 'selecting_hokm';
-        room.deck = createDeck();
-        room.hands = {};
-        room.tableCards = {};
-        room.leadSuit = null;
-
-        room.players.forEach((pId) => {
-            room.hands[pId] = room.deck.splice(0, 5);
-        });
-
-        room.hakem = room.players[Math.floor(Math.random() * room.players.length)];
-        room.currentTurn = room.hakem;
-
+    function updateRoomCoins(room) {
         room.players.forEach(pId => {
-            io.to(pId).emit('hokm-deal-first', {
-                hand: room.hands[pId],
-                hakemName: room.names[room.hakem],
-                isHakem: (room.hakem === pId)
-            });
-        });
-    }
-
-    socket.on('select-hokm', ({ roomId, suit }) => {
-        let room = rooms[roomId];
-        if (!room || room.hakem !== socket.id) return;
-
-        room.hokmSuit = suit;
-        room.hokmState = 'playing';
-
-        room.players.forEach(pId => {
-            let extraCards = room.deck.splice(0, 8);
-            room.hands[pId] = room.hands[pId].concat(extraCards);
-        });
-
-        room.players.forEach(pId => {
-            io.to(pId).emit('hokm-game-started', {
-                suit: suit,
-                hand: room.hands[pId],
-                turn: room.currentTurn,
-                turnName: room.names[room.currentTurn]
-            });
-        });
-    });
-
-    socket.on('play-card', ({ roomId, card }) => {
-        let room = rooms[roomId];
-        if (!room || room.hokmState !== 'playing') return;
-        if (room.currentTurn !== socket.id) return;
-
-        let pHand = room.hands[socket.id];
-        let cardIdx = pHand.findIndex(c => c.suit === card.suit && c.val === card.val);
-        if (cardIdx === -1) return;
-
-        if (Object.keys(room.tableCards).length === 0) {
-            room.leadSuit = card.suit;
-        }
-
-        pHand.splice(cardIdx, 1);
-        room.tableCards[socket.id] = card;
-
-        let pIndex = room.players.indexOf(socket.id);
-        let nextIndex = (pIndex + 1) % 4;
-        room.currentTurn = room.players[nextIndex];
-
-        io.to(roomId).emit('card-played', {
-            tableCards: room.tableCards,
-            hand: pHand,
-            nextTurn: room.currentTurn,
-            turnName: room.names[room.currentTurn],
-            playerPlayed: socket.id
-        });
-
-        if (Object.keys(room.tableCards).length === 4) {
-            let winnerId = calculateTrickWinner(room);
-            io.to(roomId).emit('trick-winner', {
-                winnerId: winnerId,
-                winnerName: room.names[winnerId]
-            });
-
-            room.currentTurn = winnerId;
-            room.tableCards = {};
-            room.leadSuit = null;
-
-            setTimeout(() => {
-                io.to(roomId).emit('clear-table', {
-                    nextTurn: room.currentTurn,
-                    turnName: room.names[room.currentTurn]
-                });
-            }, 3000);
-        }
-    });
-
-    function calculateTrickWinner(room) {
-        let cards = room.tableCards;
-        let leadSuit = room.leadSuit;
-        let hokmSuit = room.hokmSuit;
-
-        let bestPlayer = null;
-        let highestValue = -1;
-        let hasHokm = false;
-
-        for (let pId in cards) {
-            let card = cards[pId];
-            let val = valuesOrder[card.val];
-
-            if (card.suit === hokmSuit) {
-                if (!hasHokm) {
-                    hasHokm = true;
-                    highestValue = val;
-                    bestPlayer = pId;
-                } else if (val > highestValue) {
-                    highestValue = val;
-                    bestPlayer = pId;
-                }
-            } else if (!hasHokm && card.suit === leadSuit) {
-                if (val > highestValue) {
-                    highestValue = val;
-                    bestPlayer = pId;
-                }
-            } else if (!bestPlayer && !hasHokm) {
-                highestValue = val;
-                bestPlayer = pId;
+            let uName = room.usernames[pId];
+            if (uName && users[uName]) {
+                users[uName].coins = room.scores[pId];
             }
-        }
-        return bestPlayer;
+        });
+        saveData(USERS_FILE, users);
     }
 
+    // منطق بازی‌ها و کسر/افزایش سکه از بازیکنان
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
-        if (room.scores[socket.id] <= 0) return;
 
         room.choices[socket.id] = move;
 
@@ -333,9 +243,10 @@ io.on('connection', (socket) => {
 
             if (room.scores[p1] < 0) room.scores[p1] = 0;
             if (room.scores[p2] < 0) room.scores[p2] = 0;
+            updateRoomCoins(room);
 
-            io.to(p1).emit('round-result', { myMove: c1, oppMove: c2, result: res1, myCoins: room.scores[p1], oppCoins: room.scores[p2] });
-            io.to(p2).emit('round-result', { myMove: c2, oppMove: c1, result: res2, myCoins: room.scores[p2], oppCoins: room.scores[p1] });
+            io.to(p1).emit('round-result', { myMove: c1, oppMove: c2, result: res1, myCoins: room.scores[p1] });
+            io.to(p2).emit('round-result', { myMove: c2, oppMove: c1, result: res2, myCoins: room.scores[p2] });
 
             room.choices = {};
         }
@@ -375,6 +286,7 @@ io.on('connection', (socket) => {
             room.scores[winnerSocketId] += 50;
             room.scores[loserSocketId] -= 50;
             if (room.scores[loserSocketId] < 0) room.scores[loserSocketId] = 0;
+            updateRoomCoins(room);
 
             io.to(roomId).emit('xo-game-over', {
                 board: room.xoBoard,
@@ -399,12 +311,11 @@ io.on('connection', (socket) => {
     socket.on('roll-dice', ({ roomId }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'dice') return;
-        if (room.scores[socket.id] <= 0) return;
 
         const roll = Math.floor(Math.random() * 6) + 1;
         room.diceRolls[socket.id] = roll;
 
-        io.to(roomId).emit('dice-rolled-status', { playerName: room.names[socket.id] });
+        io.to(roomId).emit('dice-rolled-status', { playerName: room.usernames[socket.id] });
 
         if (Object.keys(room.diceRolls).length === room.players.length) {
             let maxRoll = -1;
@@ -429,27 +340,24 @@ io.on('connection', (socket) => {
                         if (room.scores[pId] < 0) room.scores[pId] = 0;
                     }
                 });
+                updateRoomCoins(room);
             }
 
             io.to(roomId).emit('dice-round-result', {
                 rolls: room.diceRolls,
                 winners: winners,
                 scores: room.scores,
-                names: room.names
+                names: room.usernames
             });
 
             room.diceRolls = {};
         }
     });
 
-    // مدیریت چت گروهی و ذخیره پیام‌ها در فایل
     socket.on('send-message', ({ roomId, message, senderName }) => {
-        if (!roomChats[roomId]) {
-            roomChats[roomId] = [];
-        }
-        // ذخیره پیام در آرایه مربوط به اتاق
+        if (!roomChats[roomId]) roomChats[roomId] = [];
         roomChats[roomId].push({ senderName, message });
-        saveData(CHATS_FILE, roomChats); // ذخیره دائمی چت‌ها روی فایل
+        saveData(CHATS_FILE, roomChats);
 
         socket.to(roomId).emit('receive-message', { message, senderName });
     });
@@ -460,7 +368,7 @@ io.on('connection', (socket) => {
             if (rooms[roomId].players.length === 0) {
                 delete rooms[roomId];
             } else {
-                io.to(roomId).emit('opponent-left', 'یکی از بازیکنان از بازی خارج شد.');
+                io.to(roomId).emit('opponent-left', 'یک نفر از گروه خارج شد.');
             }
         }
     });
