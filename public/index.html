@@ -67,7 +67,7 @@
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chat-input" placeholder="پیام به حریف...">
+                    <input type="text" id="chat-input" placeholder="پیام به حریف..." onkeypress="checkEnter(event)">
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
@@ -132,16 +132,26 @@
             document.getElementById('controls').classList.remove('hidden');
         });
 
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
         function sendMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (!msg) return;
 
+            // نمایش پیام خود کاربر با نام خودش
             appendMessage(myName, msg, '#38bdf8');
+            
+            // ارسال به سرور برای پخش به حریف
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
+        // دریافت پیام از طرف مقابل
         socket.on('receive-message', (data) => {
             appendMessage(data.senderName, data.message, '#f43f5e');
         });
