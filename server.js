@@ -31,6 +31,7 @@ function saveData(file, data) {
 
 let users = loadData(USERS_FILE);
 let roomChats = loadData(CHATS_FILE);
+let groupProfiles = {}; // ذخیره اطلاعات پروفایل گروه‌ها
 
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
@@ -103,6 +104,14 @@ io.on('connection', (socket) => {
             };
         }
 
+        // پروفایل پیش‌فرض گروه اگر ساخته نشده باشد
+        if (!groupProfiles[roomId]) {
+            groupProfiles[roomId] = {
+                title: roomId,
+                description: 'گروه چت و دورهمی بازی‌ها'
+            };
+        }
+
         let room = rooms[roomId];
 
         if (!room.players.includes(socket.id)) {
@@ -112,11 +121,11 @@ io.on('connection', (socket) => {
                 room.players.push(socket.id);
                 room.usernames[socket.id] = username;
                 
-                // مقداردهی سکه بر اساس پروفایل کاربر در دیتابیس
                 if (!users[username].coins) users[username].coins = 300;
                 room.scores[socket.id] = users[username].coins;
 
                 socket.emit('joined', { coins: room.scores[socket.id] });
+                socket.emit('room-profile', groupProfiles[roomId]);
 
                 if (roomChats[roomId]) {
                     socket.emit('load-chat-history', roomChats[roomId]);
@@ -142,7 +151,15 @@ io.on('connection', (socket) => {
         }
     });
 
-    // هدیه دادن سکه به کاربر دیگر
+    // به‌روزرسانی پروفایل گروه
+    socket.on('update-group-profile', ({ roomId, title, description }) => {
+        if (groupProfiles[roomId]) {
+            if (title) groupProfiles[roomId].title = title;
+            if (description) groupProfiles[roomId].description = description;
+            io.to(roomId).emit('room-profile', groupProfiles[roomId]);
+        }
+    });
+
     socket.on('transfer-coins', ({ targetUser, amount, senderUser }) => {
         amount = parseInt(amount);
         if (isNaN(amount) || amount <= 0) {
@@ -158,21 +175,15 @@ io.on('connection', (socket) => {
             return;
         }
         if (users[senderUser].coins < amount) {
-            socket.emit('transfer-result', { success: false, message: 'سکه‌های شما برای این انتقال کافی نیست.' });
+            socket.emit('transfer-result', { success: false, message: 'سکه‌های شما کافی نیست.' });
             return;
         }
 
-        // کسر از فرستنده و افزودن به گیرنده
         users[senderUser].coins -= amount;
         users[targetUser].coins += amount;
         saveData(USERS_FILE, users);
 
-        socket.emit('transfer-result', { success: true, message: `${amount} سکه به ${targetUser} هدیه داده شد!`, newCoins: users[senderUser].coins });
-        
-        // به‌روزرسانی سکه اگر کاربر آنلاین باشد
-        for (let sId in io.sockets.sockets) {
-            // آپدیت برای فرستنده و گیرنده در صورت حضور
-        }
+        socket.emit('transfer-result', { success: true, message: `${amount} سکه هدیه داده شد!`, newCoins: users[senderUser].coins });
     });
 
     socket.on('change-game', ({ roomId, gameType }) => {
@@ -181,7 +192,7 @@ io.on('connection', (socket) => {
 
         const maxPlayers = (gameType === 'dice' || gameType === 'hokm') ? 4 : 2;
         if (room.players.length > maxPlayers) {
-            socket.emit('room-full', 'تعداد بازیکنان این گروه برای این بازی زیاد است!');
+            socket.emit('room-full', 'تعداد بازیکنان این گروه زیاد است!');
             return;
         }
 
@@ -198,6 +209,52 @@ io.on('connection', (socket) => {
         }
     });
 
+    function startHokmGame(roomId) {
+        let room = rooms[roomId];
+        room.hokmState = 'selecting_hokm';
+        room.deck = createDeck();
+        room.hands = {};
+        room.tableCards = {};
+        room.leadSuit = null;
+
+        room.players.forEach((pId) => {
+            room.hands[pId] = room.deck.splice(0, 5);
+        });
+
+        room.hakem = room.players[Math.floor(Math.random() * room.players.length)];
+        room.currentTurn = room.hakem;
+
+        room.players.forEach(pId => {
+            io.to(pId).emit('hokm-deal-first', {
+                hand: room.hands[pId],
+                hakemName: room.usernames[room.hakem],
+                isHakem: (room.hakem === pId)
+            });
+        });
+    }
+
+    socket.on('select-hokm', ({ roomId, suit }) => {
+        let room = rooms[roomId];
+        if (!room || room.hakem !== socket.id) return;
+
+        room.hokmSuit = suit;
+        room.hokmState = 'playing';
+
+        room.players.forEach(pId => {
+            let extraCards = room.deck.splice(0, 8);
+            room.hands[pId] = room.hands[pId].concat(extraCards);
+        });
+
+        room.players.forEach(pId => {
+            io.to(pId).emit('hokm-game-started', {
+                suit: suit,
+                hand: room.hands[pId],
+                turn: room.currentTurn,
+                turnName: room.usernames[room.currentTurn]
+            });
+        });
+    });
+
     function updateRoomCoins(room) {
         room.players.forEach(pId => {
             let uName = room.usernames[pId];
@@ -208,7 +265,6 @@ io.on('connection', (socket) => {
         saveData(USERS_FILE, users);
     }
 
-    // منطق بازی‌ها و کسر/افزایش سکه از بازیکنان
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
@@ -222,7 +278,6 @@ io.on('connection', (socket) => {
             const c2 = room.choices[p2];
 
             let res1 = '', res2 = '';
-
             if (c1 === c2) {
                 res1 = res2 = 'مساوی!';
             } else if (
@@ -230,15 +285,11 @@ io.on('connection', (socket) => {
                 (c1 === 'کاغذ' && c2 === 'سنگ') ||
                 (c1 === 'قیچی' && c2 === 'کاغذ')
             ) {
-                res1 = 'برنده شدید! 🎉';
-                res2 = 'باختید! 😢';
-                room.scores[p1] += 50;
-                room.scores[p2] -= 50;
+                res1 = 'برنده شدید! 🎉'; res2 = 'باختید! 😢';
+                room.scores[p1] += 50; room.scores[p2] -= 50;
             } else {
-                res1 = 'باختید! 😢';
-                res2 = 'برنده شدید! 🎉';
-                room.scores[p2] += 50;
-                room.scores[p1] -= 50;
+                res1 = 'باختید! 😢'; res2 = 'برنده شدید! 🎉';
+                room.scores[p2] += 50; room.scores[p1] -= 50;
             }
 
             if (room.scores[p1] < 0) room.scores[p1] = 0;
@@ -247,7 +298,6 @@ io.on('connection', (socket) => {
 
             io.to(p1).emit('round-result', { myMove: c1, oppMove: c2, result: res1, myCoins: room.scores[p1] });
             io.to(p2).emit('round-result', { myMove: c2, oppMove: c1, result: res2, myCoins: room.scores[p2] });
-
             room.choices = {};
         }
     });
@@ -262,12 +312,7 @@ io.on('connection', (socket) => {
         room.xoBoard[index] = symbol;
         room.xoTurn = room.players.find(id => id !== socket.id);
 
-        const winPatterns = [
-            [0,1,2], [3,4,5], [6,7,8],
-            [0,3,6], [1,4,7], [2,5,8],
-            [0,4,8], [2,4,6]
-        ];
-
+        const winPatterns = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
         let winner = null;
         for (let pattern of winPatterns) {
             const [a, b, c] = pattern;
@@ -278,7 +323,6 @@ io.on('connection', (socket) => {
         }
 
         let isDraw = !winner && room.xoBoard.every(cell => cell !== '');
-
         if (winner) {
             const winnerSocketId = winner === 'X' ? room.players[0] : room.players[1];
             const loserSocketId = room.players.find(id => id !== winnerSocketId);
@@ -289,18 +333,14 @@ io.on('connection', (socket) => {
             updateRoomCoins(room);
 
             io.to(roomId).emit('xo-game-over', {
-                board: room.xoBoard,
-                winnerId: winnerSocketId,
-                myCoins1: room.scores[room.players[0]],
-                myCoins2: room.scores[room.players[1]]
+                board: room.xoBoard, winnerId: winnerSocketId,
+                myCoins1: room.scores[room.players[0]], myCoins2: room.scores[room.players[1]]
             });
             room.xoBoard = Array(9).fill('');
         } else if (isDraw) {
             io.to(roomId).emit('xo-game-over', {
-                board: room.xoBoard,
-                winnerId: 'draw',
-                myCoins1: room.scores[room.players[0]],
-                myCoins2: room.scores[room.players[1]]
+                board: room.xoBoard, winnerId: 'draw',
+                myCoins1: room.scores[room.players[0]], myCoins2: room.scores[room.players[1]]
             });
             room.xoBoard = Array(9).fill('');
         } else {
@@ -320,7 +360,6 @@ io.on('connection', (socket) => {
         if (Object.keys(room.diceRolls).length === room.players.length) {
             let maxRoll = -1;
             let winners = [];
-
             for (let pId in room.diceRolls) {
                 if (room.diceRolls[pId] > maxRoll) {
                     maxRoll = room.diceRolls[pId];
@@ -333,9 +372,8 @@ io.on('connection', (socket) => {
             if (winners.length === 1) {
                 const winnerId = winners[0];
                 room.players.forEach(pId => {
-                    if (pId === winnerId) {
-                        room.scores[pId] += (room.players.length - 1) * 30;
-                    } else {
+                    if (pId === winnerId) room.scores[pId] += (room.players.length - 1) * 30;
+                    else {
                         room.scores[pId] -= 30;
                         if (room.scores[pId] < 0) room.scores[pId] = 0;
                     }
@@ -344,12 +382,8 @@ io.on('connection', (socket) => {
             }
 
             io.to(roomId).emit('dice-round-result', {
-                rolls: room.diceRolls,
-                winners: winners,
-                scores: room.scores,
-                names: room.usernames
+                rolls: room.diceRolls, winners: winners, scores: room.scores, names: room.usernames
             });
-
             room.diceRolls = {};
         }
     });

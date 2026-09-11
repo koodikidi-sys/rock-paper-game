@@ -17,10 +17,15 @@
         }
 
         body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background-color: var(--tg-panel); padding: 18px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 92vh; max-height: 780px; box-sizing: border-box; }
+        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 94vh; max-height: 800px; box-sizing: border-box; }
         
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
-        h2 { margin: 0; font-size: 16px; color: #38bdf8; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
+        
+        /* پروفایل گروه بالای چت */
+        .group-profile-box { background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        .group-info h3 { margin: 0; font-size: 14px; color: #38bdf8; }
+        .group-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--tg-gray); }
+        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 12px; cursor: pointer; padding: 0; width: auto; }
         
         input, button { width: 100%; padding: 10px 12px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
         input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
@@ -28,50 +33,41 @@
         
         button { background-color: var(--tg-accent); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:hover { background-color: var(--tg-accent-hover); }
-        .btn-danger { background-color: #ef4444; font-size: 11px; padding: 5px 10px; width: auto; margin: 0; }
-        .btn-danger:hover { background-color: #dc2626; }
+        .btn-danger { background-color: #ef4444; font-size: 11px; padding: 4px 8px; width: auto; margin: 0; }
         .btn-secondary { background-color: #334155; }
-        .btn-secondary:hover { background-color: #475569; }
         
         .donate-header-btn {
             background-color: #db2777; color: white; text-decoration: none; display: block;
-            padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 8px;
+            padding: 5px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 6px;
         }
-        .donate-header-btn:hover { background-color: #be185d; }
 
         .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; }
         .game-selector button { background: #334155; font-size: 10px; padding: 6px 2px; margin: 0; }
         .game-selector button.active { background: #2b5278; border-bottom: 2px solid #38bdf8; }
 
-        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 6px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
         .hidden { display: none !important; }
-        #status-msg { font-weight: bold; margin: 4px 0; color: #38bdf8; font-size: 12px; }
+        #status-msg { font-weight: bold; margin: 3px 0; color: #38bdf8; font-size: 11px; }
         
-        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px auto; max-width: 200px; }
-        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 50px; font-size: 22px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
-        .xo-cell:hover { background: #1e293b; }
+        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px auto; max-width: 180px; }
+        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 45px; font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
 
-        .dice-box { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin: 4px 0; }
-        .dice-result-text { font-size: 12px; line-height: 1.4; text-align: right; margin-top: 4px; }
+        .dice-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin: 4px 0; }
+        .dice-result-text { font-size: 11px; line-height: 1.4; text-align: right; margin-top: 3px; }
 
-        .hokm-box { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin: 4px 0; text-align: center; }
-        .suit-btn { display: inline-block; width: 34px; height: 34px; margin: 2px; font-size: 16px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
-        .suit-btn:hover { background: #2b5278; }
+        .hokm-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin: 4px 0; text-align: center; }
+        .suit-btn { display: inline-block; width: 32px; height: 32px; margin: 2px; font-size: 15px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
+        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; max-height: 100px; overflow-y: auto; }
+        .card-item { background: #fff; color: #000; width: 32px; height: 44px; border-radius: 4px; font-weight: bold; font-size: 11px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+
+        .gift-box { background: rgba(255,255,255,0.03); padding: 5px; border-radius: 6px; margin-top: 5px; display: flex; gap: 4px; align-items: center; }
+        .gift-box input { margin: 0; padding: 5px; font-size: 11px; }
+        .gift-box button { margin: 0; padding: 5px; font-size: 11px; width: 70px; background-color: #10b981; }
+
+        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 5px; margin-top: 5px; border: 1px solid #1e293b; overflow: hidden; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 12px; margin-bottom: 5px; padding: 4px; display: flex; flex-direction: column; gap: 4px; text-align: right; }
         
-        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; max-height: 110px; overflow-y: auto; }
-        .card-item { background: #fff; color: #000; width: 34px; height: 46px; border-radius: 4px; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-
-        /* بخش هدیه سکه */
-        .gift-box { background: rgba(255,255,255,0.03); padding: 6px; border-radius: 6px; margin-top: 6px; display: flex; gap: 4px; align-items: center; }
-        .gift-box input { margin: 0; padding: 6px; font-size: 11px; }
-        .gift-box button { margin: 0; padding: 6px; font-size: 11px; width: 80px; background-color: #10b981; }
-        .gift-box button:hover { background-color: #059669; }
-
-        /* چت تلگرامی */
-        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 6px; margin-top: 6px; border: 1px solid #1e293b; overflow: hidden; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 12px; margin-bottom: 6px; padding: 4px; display: flex; flex-direction: column; gap: 5px; text-align: right; }
-        
-        .message-bubble { max-width: 80%; padding: 6px 10px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
+        .message-bubble { max-width: 80%; padding: 5px 8px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
         .message-bubble.my-message { background-color: var(--tg-my-message); align-self: flex-start; border-bottom-right-radius: 2px; }
         .message-bubble.other-message { background-color: var(--tg-other-message); align-self: flex-end; border-bottom-left-radius: 2px; }
         .msg-sender { font-size: 10px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
@@ -80,17 +76,17 @@
         .chat-input-row input { text-align: right; padding: 6px 8px; margin: 0; font-size: 12px; }
         .chat-input-row button { width: 55px; margin: 0; padding: 6px; font-size: 12px; border-radius: 6px; }
 
-        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 6px; }
-        .error-msg { color: #ef4444; font-size: 11px; margin: 3px 0; }
-        .success-msg { color: #4ade80; font-size: 11px; margin: 3px 0; }
+        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 5px; }
+        .error-msg { color: #ef4444; font-size: 11px; margin: 2px 0; }
+        .success-msg { color: #4ade80; font-size: 11px; margin: 2px 0; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header-row">
-            <h2>گپ و بازی آنلاین 💬</h2>
-            <button id="btn-leave" class="btn-danger hidden" onclick="leaveGroup()">خروج از گروه 🚪</button>
+            <h2 id="app-title">گپ و بازی آنلاین 💬</h2>
+            <button id="btn-leave" class="btn-danger hidden" onclick="leaveGroup()">خروج 🚪</button>
         </div>
         
         <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی</a>
@@ -122,10 +118,31 @@
             <p style="font-size: 12px;">نام گروه را وارد کنید:</p>
             <input type="text" id="room-code" placeholder="نام گروه (مثلاً: dorehami)">
             <button onclick="connectRoom()">ورود به گروه</button>
+            <button class="btn-secondary" onclick="logoutUser()" style="margin-top: 10px;">خروج از حساب کاربری 🔒</button>
         </div>
 
         <!-- محیط اصلی گروه -->
         <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
+            
+            <!-- پروفایل گروه (تلگرام استایل) -->
+            <div class="group-profile-box">
+                <div class="group-info">
+                    <h3 id="group-title-view">نام گروه</h3>
+                    <p id="group-desc-view">توضیحات گروه...</p>
+                </div>
+                <button class="edit-profile-btn" onclick="openEditProfile()">✏️ ویرایش</button>
+            </div>
+
+            <!-- پنل ویرایش پروفایل گروه (پاپ‌آپ مخفی) -->
+            <div id="edit-profile-panel" class="hidden" style="background: #0b1329; padding: 8px; border-radius: 8px; margin-bottom: 6px; text-align: right;">
+                <input type="text" id="edit-group-title" placeholder="نام جدید گروه" style="font-size: 11px; padding: 5px;">
+                <input type="text" id="edit-group-desc" placeholder="توضیحات جدید گروه" style="font-size: 11px; padding: 5px;">
+                <div style="display: flex; gap: 4px;">
+                    <button onclick="saveGroupProfile()" style="padding: 5px; font-size: 11px; margin: 0;">ذخیره</button>
+                    <button class="btn-secondary" onclick="closeEditProfile()" style="padding: 5px; font-size: 11px; margin: 0;">لغو</button>
+                </div>
+            </div>
+
             <div class="game-selector">
                 <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ</button>
                 <button id="btn-xo" onclick="switchGame('xo')">دوز XO</button>
@@ -147,7 +164,7 @@
                     <button onclick="makeMove('کاغذ')">✋ کاغذ</button>
                     <button onclick="makeMove('قیچی')">✌️ قیچی</button>
                 </div>
-                <div id="result-box" class="hidden" style="font-size: 12px; margin: 4px 0;"></div>
+                <div id="result-box" class="hidden" style="font-size: 11px; margin: 3px 0;"></div>
             </div>
 
             <div id="xo-section" class="hidden">
@@ -184,14 +201,14 @@
                 </div>
             </div>
 
-            <!-- بخش هدیه دادن سکه به دوستان -->
+            <!-- هدیه سکه -->
             <div class="gift-box">
                 <input type="text" id="gift-user" placeholder="نام کاربری دوست..." style="flex: 2;">
                 <input type="number" id="gift-amount" placeholder="مقدار" style="flex: 1;">
                 <button onclick="sendCoinGift()">هدیه 🎁</button>
             </div>
 
-            <!-- چت تلگرامی -->
+            <!-- چت -->
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
@@ -208,8 +225,15 @@
     <script>
         const socket = io();
         let currentRoom = '';
-        let myName = '';
-        let currentGame = 'rps';
+        let myName = localStorage.getItem('chat_game_user') || '';
+
+        window.onload = () => {
+            if (myName) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('lobby').classList.remove('hidden');
+                document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
+            }
+        };
 
         function showRegister() {
             document.getElementById('login-form').classList.add('hidden');
@@ -267,6 +291,7 @@
 
             if (data.success) {
                 myName = data.username;
+                localStorage.setItem('chat_game_user', myName);
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('lobby').classList.remove('hidden');
                 document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
@@ -274,6 +299,15 @@
             } else {
                 alertBox.innerText = data.message;
             }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('chat_game_user');
+            myName = '';
+            document.getElementById('lobby').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
         }
 
         function connectRoom() {
@@ -290,10 +324,36 @@
             document.getElementById('btn-leave').classList.remove('hidden');
         }
 
-        // خروج از گروه و بازگشت به لابی
         function leaveGroup() {
-            location.reload();
+            currentRoom = '';
+            document.getElementById('game-room').classList.add('hidden');
+            document.getElementById('btn-leave').classList.add('hidden');
+            document.getElementById('lobby').classList.remove('hidden');
+            document.getElementById('room-code').value = '';
         }
+
+        // توابع پروفایل گروه
+        function openEditProfile() {
+            document.getElementById('edit-profile-panel').classList.remove('hidden');
+            document.getElementById('edit-group-title').value = document.getElementById('group-title-view').innerText;
+            document.getElementById('edit-group-desc').value = document.getElementById('group-desc-view').innerText;
+        }
+
+        function closeEditProfile() {
+            document.getElementById('edit-profile-panel').classList.add('hidden');
+        }
+
+        function saveGroupProfile() {
+            const title = document.getElementById('edit-group-title').value.trim();
+            const description = document.getElementById('edit-group-desc').value.trim();
+            socket.emit('update-group-profile', { roomId: currentRoom, title, description });
+            closeEditProfile();
+        }
+
+        socket.on('room-profile', (profile) => {
+            document.getElementById('group-title-view').innerText = profile.title;
+            document.getElementById('group-desc-view').innerText = profile.description;
+        });
 
         function sendCoinGift() {
             const targetUser = document.getElementById('gift-user').value.trim();
@@ -331,9 +391,10 @@
 
         socket.on('room-full', (msg) => {
             alert(msg);
-            location.reload();
+            leaveGroup();
         });
 
+        let currentGame = 'rps';
         function switchGame(gameType) {
             currentGame = gameType;
             document.getElementById('btn-rps').classList.remove('active');
