@@ -7,10 +7,36 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static('public'));
+app.use(express.json());
+
+// دیتابیس ساده در حافظه برای ذخیره کاربران (یوزرنیم و پسورد)
+let users = {};
+
+// مدیریت ثبت‌نام
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.json({ success: false, message: 'لطفاً نام کاربری و رمز عبور را وارد کنید.' });
+    }
+    if (users[username]) {
+        return res.json({ success: false, message: 'این نام کاربری قبلاً ثبت‌نام کرده است!' });
+    }
+    users[username] = { password, coins: 300 };
+    res.json({ success: true, message: 'ثبت‌نام با موفقیت انجام شد! حالا وارد شوید.' });
+});
+
+// مدیریت ورود
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!users[username] || users[username].password !== password) {
+        return res.json({ success: false, message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    }
+    res.json({ success: true, username, coins: users[username].coins });
+});
 
 let rooms = {};
 
-// ارزش‌گذاری کارت‌ها برای مقایسه در حکم
+// ارزش‌گذاری کارت‌ها برای حکم
 const valuesOrder = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
 
 function createDeck() {
@@ -56,8 +82,7 @@ io.on('connection', (socket) => {
                 tableCards: {},
                 currentTurn: null,
                 deck: [],
-                leadSuit: null,
-                tricksCount: {} // تعداد دست‌های برده هر تیم یا بازیکن
+                leadSuit: null
             };
         }
 
@@ -68,10 +93,11 @@ io.on('connection', (socket) => {
 
             if (room.players.length < maxPlayers) {
                 room.players.push(socket.id);
-                room.scores[socket.id] = 300;
+                // استفاده از سکه کاربر یا پیش‌فرض ۳۰۰
+                room.scores[socket.id] = (users[playerName] ? users[playerName].coins : 300);
                 room.names[socket.id] = playerName || 'بازیکن';
 
-                socket.emit('joined', { coins: 300 });
+                socket.emit('joined', { coins: room.scores[socket.id] });
 
                 io.to(roomId).emit('update-players', {
                     players: room.players.map(id => room.names[id]),
@@ -162,7 +188,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // منطق بازی کارت و بررسی قوانین حکم
     socket.on('play-card', ({ roomId, card }) => {
         let room = rooms[roomId];
         if (!room || room.hokmState !== 'playing') return;
@@ -172,11 +197,8 @@ io.on('connection', (socket) => {
         let cardIdx = pHand.findIndex(c => c.suit === card.suit && c.val === card.val);
         if (cardIdx === -1) return;
 
-        // اگر اولین کارت دست است، خال زمینه (Lead Suit) مشخص می‌شود
         if (Object.keys(room.tableCards).length === 0) {
             room.leadSuit = card.suit;
-        } else {
-            // قانون پیروی از خال: اگر بازیکن از خال زمینه کارت دارد، باید همان را بازی کند (اختیاری/ساده شده برای روانی بازی)
         }
 
         pHand.splice(cardIdx, 1);
@@ -194,7 +216,6 @@ io.on('connection', (socket) => {
             playerPlayed: socket.id
         });
 
-        // وقتی ۴ نفر کارت بازی کردند، برنده دست مشخص می‌شود
         if (Object.keys(room.tableCards).length === 4) {
             let winnerId = calculateTrickWinner(room);
             io.to(roomId).emit('trick-winner', {
@@ -202,7 +223,6 @@ io.on('connection', (socket) => {
                 winnerName: room.names[winnerId]
             });
 
-            // برنده دست، نوبت بعدی را خواهد داشت
             room.currentTurn = winnerId;
             room.tableCards = {};
             room.leadSuit = null;
@@ -216,9 +236,8 @@ io.on('connection', (socket) => {
         }
     });
 
-    // تابع تشخیص برنده دست در حکم
     function calculateTrickWinner(room) {
-        let cards = room.tableCards; // { socketId: {suit, val} }
+        let cards = room.tableCards;
         let leadSuit = room.leadSuit;
         let hokmSuit = room.hokmSuit;
 
@@ -230,28 +249,21 @@ io.on('connection', (socket) => {
             let card = cards[pId];
             let val = valuesOrder[card.val];
 
-            // اگر کارت حکم باشد
             if (card.suit === hokmSuit) {
                 if (!hasHokm) {
                     hasHokm = true;
                     highestValue = val;
                     bestPlayer = pId;
-                } else {
-                    if (val > highestValue) {
-                        highestValue = val;
-                        bestPlayer = pId;
-                    }
+                } else if (val > highestValue) {
+                    highestValue = val;
+                    bestPlayer = pId;
                 }
-            } 
-            // اگر کارت از خال زمینه باشد و هنوزی حکمی بازی نشده باشد
-            else if (!hasHokm && card.suit === leadSuit) {
+            } else if (!hasHokm && card.suit === leadSuit) {
                 if (val > highestValue) {
                     highestValue = val;
                     bestPlayer = pId;
                 }
-            } 
-            // اگر اولین کارتی است که بررسی میشود
-            else if (!bestPlayer && !hasHokm) {
+            } else if (!bestPlayer && !hasHokm) {
                 highestValue = val;
                 bestPlayer = pId;
             }
@@ -259,7 +271,6 @@ io.on('connection', (socket) => {
         return bestPlayer;
     }
 
-    // سنگ‌کاغذ‌قیچی
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
@@ -303,7 +314,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // دوز (XO)
     socket.on('make-xo-move', ({ roomId, index }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'xo') return;
@@ -359,7 +369,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // تاس
     socket.on('roll-dice', ({ roomId }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'dice') return;
