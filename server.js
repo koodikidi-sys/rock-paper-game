@@ -28,11 +28,10 @@ io.on('connection', (socket) => {
 
         if (room.players.length < 2) {
             room.players.push(socket.id);
-            room.scores[socket.id] = 1000; // سکه اولیه
+            room.scores[socket.id] = 1000;
 
-            socket.emit('joined', { playerNum: room.players.length, coins: 1000 });
+            socket.emit('joined', { coins: 1000 });
 
-            // اگر دو نفر کامل شدند
             if (room.players.length === 2) {
                 io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
             }
@@ -54,10 +53,8 @@ io.on('connection', (socket) => {
             const c1 = room.choices[p1];
             const c2 = room.choices[p2];
 
-            let res1 = '';
-            let res2 = '';
+            let res1 = '', res2 = '';
 
-            // منطق سنگ کاغذ قیچی
             if (c1 === c2) {
                 res1 = res2 = 'مساوی!';
             } else if (
