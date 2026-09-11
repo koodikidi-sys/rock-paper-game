@@ -23,7 +23,6 @@
         .chat-input-row input { text-align: right; padding: 8px; margin: 0; }
         .chat-input-row button { width: 70px; margin: 0; padding: 8px; font-size: 14px; }
 
-        /* برچسب سازنده در گوشه */
         .footer-credit {
             position: fixed;
             bottom: 10px;
@@ -67,7 +66,7 @@
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chat-input" placeholder="پیام به حریف..." onkeypress="checkEnter(event)">
+                    <input type="text" id="chat-input" placeholder="پیام به حریف..." onkeydown="checkEnter(event)">
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
@@ -134,6 +133,7 @@
 
         function checkEnter(event) {
             if (event.key === 'Enter') {
+                event.preventDefault();
                 sendMessage();
             }
         }
@@ -143,15 +143,11 @@
             const msg = input.value.trim();
             if (!msg) return;
 
-            // نمایش پیام خود کاربر با نام خودش
             appendMessage(myName, msg, '#38bdf8');
-            
-            // ارسال به سرور برای پخش به حریف
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
-        // دریافت پیام از طرف مقابل
         socket.on('receive-message', (data) => {
             appendMessage(data.senderName, data.message, '#f43f5e');
         });
