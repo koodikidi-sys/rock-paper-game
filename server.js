@@ -14,7 +14,6 @@ io.on('connection', (socket) => {
     console.log('یک کاربر وصل شد:', socket.id);
 
     socket.on('join-room', ({ roomId, playerName }) => {
-        // پاکسازی اتاق‌های قبلی این کاربر اگر جایی بوده
         socket.rooms.forEach(r => {
             if (r !== socket.id) socket.leave(r);
         });
@@ -32,20 +31,16 @@ io.on('connection', (socket) => {
 
         let room = rooms[roomId];
 
-        // اگر این کاربر قبلاً در این اتاق نبوده اضافه اش کن
         if (!room.players.includes(socket.id)) {
             if (room.players.length < 2) {
                 room.players.push(socket.id);
-                room.scores[socket.id] = 500;
+                room.scores[socket.id] = 300; // سکه اولیه ۳۰۰
                 room.names[socket.id] = playerName || 'بازیکن';
 
-                socket.emit('joined', { coins: 500 });
-                console.log(`کاربر ${playerName} به اتاق ${roomId} پیوست. تعداد نفرات: ${room.players.length}`);
+                socket.emit('joined', { coins: 300 });
 
-                // اگر دو نفر کامل شدند
                 if (room.players.length === 2) {
                     io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
-                    console.log(`بازی در اتاق ${roomId} شروع شد.`);
                 }
             } else {
                 socket.emit('room-full', 'این اتاق پر است!');
@@ -57,6 +52,9 @@ io.on('connection', (socket) => {
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room) return;
+
+        // اگر سکه بازیکن تمام شده باشد، اجازه بازی ندارد
+        if (room.scores[socket.id] <= 0) return;
 
         room.choices[socket.id] = move;
 
@@ -87,10 +85,23 @@ io.on('connection', (socket) => {
                 room.scores[p1] -= 50;
             }
 
+            // جلوگیری از منفی شدن سکه‌ها
+            if (room.scores[p1] < 0) room.scores[p1] = 0;
+            if (room.scores[p2] < 0) room.scores[p2] = 0;
+
             io.to(p1).emit('round-result', { myMove: c1, oppMove: c2, result: res1, myCoins: room.scores[p1], oppCoins: room.scores[p2] });
             io.to(p2).emit('round-result', { myMove: c2, oppMove: c1, result: res2, myCoins: room.scores[p2], oppCoins: room.scores[p1] });
 
             room.choices = {};
+        }
+    });
+
+    // خرید و شارژ مجدد سکه در صورت اتمام
+    socket.on('buy-coins', ({ roomId }) => {
+        let room = rooms[roomId];
+        if (room && room.scores[socket.id] !== undefined) {
+            room.scores[socket.id] = 300; // شارژ مجدد ۳۰۰ سکه
+            socket.emit('coins-updated', room.scores[socket.id]);
         }
     });
 

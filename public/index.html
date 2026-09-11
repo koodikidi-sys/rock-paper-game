@@ -11,6 +11,8 @@
         input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
         button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
         button:hover { background-color: #4f46e5; }
+        .btn-warning { background-color: #eab308; color: #000; }
+        .btn-warning:hover { background-color: #ca8a04; }
         .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
         .hidden { display: none !important; }
         #status-msg { font-weight: bold; margin: 10px 0; color: #38bdf8; font-size: 14px; }
@@ -48,8 +50,8 @@
 
         <div id="game-room" class="hidden">
             <div class="stats">
-                <div>💰 سکه شما: <span id="my-coins">500</span></div>
-                <div>⚔️ سکه حریف: <span id="opp-coins">500</span></div>
+                <div>💰 سکه شما: <span id="my-coins">300</span></div>
+                <div>⚔️ سکه حریف: <span id="opp-coins">300</span></div>
             </div>
 
             <div id="status-msg">در انتظار ورود حریف...</div>
@@ -60,19 +62,25 @@
                 <button onclick="makeMove('قیچی')">✌️ قیچی</button>
             </div>
 
+            <!-- دکمه خرید سکه (هنگام تمام شدن سکه‌ها ظاهر می‌شود) -->
+            <div id="buy-section" class="hidden">
+                <p style="color: #ef4444; font-weight: bold;">سکه‌های شما تمام شد! برای ادامه بازی باید سکه بخرید.</p>
+                <button class="btn-warning" onclick="buyCoins()">🛒 خرید ۳۰۰ سکه مجدد</button>
+            </div>
+
             <div id="result-box" class="hidden"></div>
 
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chat-input" placeholder="پیام به حریف...">
+                    <input type="text" id="chat-input" placeholder="پیام به حریف..." onkeydown="checkEnter(event)">
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="footer-credit">طراح و سازنده: یاسین افژولی</div>
+    <div class="footer-credit">طراح و سازنده: یاسین افژولی[cite: 4]</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -126,9 +134,35 @@
                 انتخاب حریف: ${data.oppMove} <br><br>
                 <b style="color: #4ade80;">${data.result}</b>
             `;
-            document.getElementById('status-msg').innerText = 'دور جدید! انتخاب کنید:';
-            document.getElementById('controls').classList.remove('hidden');
+
+            // بررسی اتمام سکه
+            if (data.myCoins <= 0) {
+                document.getElementById('controls').classList.add('hidden');
+                document.getElementById('buy-section').classList.remove('hidden');
+                document.getElementById('status-msg').innerText = 'ورشکست شدید!';
+            } else {
+                document.getElementById('status-msg').innerText = 'دور جدید! انتخاب کنید:';
+                document.getElementById('controls').classList.remove('hidden');
+            }
         });
+
+        function buyCoins() {
+            socket.emit('buy-coins', { roomId: currentRoom });
+        }
+
+        socket.on('coins-updated', (newCoins) => {
+            document.getElementById('my-coins').innerText = newCoins;
+            document.getElementById('buy-section').classList.add('hidden');
+            document.getElementById('controls').classList.remove('hidden');
+            document.getElementById('status-msg').innerText = 'سکه خریداری شد! بازی رو ادامه دهید:';
+        });
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
 
         function sendMessage() {
             const input = document.getElementById('chat-input');
