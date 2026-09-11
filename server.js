@@ -11,9 +11,14 @@ app.use(express.static('public'));
 let rooms = {};
 
 io.on('connection', (socket) => {
-    console.log('کاربر متصل شد:', socket.id);
+    console.log('یک کاربر وصل شد:', socket.id);
 
     socket.on('join-room', ({ roomId, playerName }) => {
+        // پاکسازی اتاق‌های قبلی این کاربر اگر جایی بوده
+        socket.rooms.forEach(r => {
+            if (r !== socket.id) socket.leave(r);
+        });
+
         socket.join(roomId);
 
         if (!rooms[roomId]) {
@@ -27,18 +32,25 @@ io.on('connection', (socket) => {
 
         let room = rooms[roomId];
 
-        if (room.players.length < 2) {
-            room.players.push(socket.id);
-            room.scores[socket.id] = 500;
-            room.names[socket.id] = playerName || 'بازیکن';
+        // اگر این کاربر قبلاً در این اتاق نبوده اضافه اش کن
+        if (!room.players.includes(socket.id)) {
+            if (room.players.length < 2) {
+                room.players.push(socket.id);
+                room.scores[socket.id] = 500;
+                room.names[socket.id] = playerName || 'بازیکن';
 
-            socket.emit('joined', { coins: 500 });
+                socket.emit('joined', { coins: 500 });
+                console.log(`کاربر ${playerName} به اتاق ${roomId} پیوست. تعداد نفرات: ${room.players.length}`);
 
-            if (room.players.length === 2) {
-                io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
+                // اگر دو نفر کامل شدند
+                if (room.players.length === 2) {
+                    io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
+                    console.log(`بازی در اتاق ${roomId} شروع شد.`);
+                }
+            } else {
+                socket.emit('room-full', 'این اتاق پر است!');
+                return;
             }
-        } else {
-            socket.emit('room-full', 'این اتاق پر است!');
         }
     });
 
@@ -87,6 +99,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        console.log('کاربر خارج شد:', socket.id);
         for (let roomId in rooms) {
             rooms[roomId].players = rooms[roomId].players.filter(id => id !== socket.id);
             if (rooms[roomId].players.length === 0) {
