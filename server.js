@@ -1,6 +1,8 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -9,10 +11,31 @@ const io = new Server(server);
 app.use(express.static('public'));
 app.use(express.json());
 
-// دیتابیس ساده در حافظه برای ذخیره کاربران (یوزرنیم و پسورد)
-let users = {};
+// مسیر فایل‌های ذخیره‌سازی داده‌ها
+const USERS_FILE = path.join(__dirname, 'users.json');
+const CHATS_FILE = path.join(__dirname, 'chats.json');
 
-// مدیریت ثبت‌نام
+// توابع کمکی برای خواندن و نوشتن فایل‌ها
+function loadData(file) {
+    if (fs.existsSync(file)) {
+        try {
+            return JSON.parse(fs.readFileSync(file, 'utf8'));
+        } catch (e) {
+            return {};
+        }
+    }
+    return {};
+}
+
+function saveData(file, data) {
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// بارگذاری اولیه داده‌ها از فایل
+let users = loadData(USERS_FILE);
+let roomChats = loadData(CHATS_FILE); // ذخیره پیام‌های هر اتاق/گروه
+
+// مدیریت ثبت‌نام با ذخیره در فایل
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -22,6 +45,7 @@ app.post('/api/register', (req, res) => {
         return res.json({ success: false, message: 'این نام کاربری قبلاً ثبت‌نام کرده است!' });
     }
     users[username] = { password, coins: 300 };
+    saveData(USERS_FILE, users); // ذخیره دائمی
     res.json({ success: true, message: 'ثبت‌نام با موفقیت انجام شد! حالا وارد شوید.' });
 });
 
@@ -36,7 +60,6 @@ app.post('/api/login', (req, res) => {
 
 let rooms = {};
 
-// ارزش‌گذاری کارت‌ها برای حکم
 const valuesOrder = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
 
 function createDeck() {
@@ -93,11 +116,15 @@ io.on('connection', (socket) => {
 
             if (room.players.length < maxPlayers) {
                 room.players.push(socket.id);
-                // استفاده از سکه کاربر یا پیش‌فرض ۳۰۰
                 room.scores[socket.id] = (users[playerName] ? users[playerName].coins : 300);
                 room.names[socket.id] = playerName || 'بازیکن';
 
                 socket.emit('joined', { coins: room.scores[socket.id] });
+
+                // ارسال تاریخچه چت‌های قبلی این گروه به کاربر جدید
+                if (roomChats[roomId]) {
+                    socket.emit('load-chat-history', roomChats[roomId]);
+                }
 
                 io.to(roomId).emit('update-players', {
                     players: room.players.map(id => room.names[id]),
@@ -415,7 +442,15 @@ io.on('connection', (socket) => {
         }
     });
 
+    // مدیریت چت گروهی و ذخیره پیام‌ها در فایل
     socket.on('send-message', ({ roomId, message, senderName }) => {
+        if (!roomChats[roomId]) {
+            roomChats[roomId] = [];
+        }
+        // ذخیره پیام در آرایه مربوط به اتاق
+        roomChats[roomId].push({ senderName, message });
+        saveData(CHATS_FILE, roomChats); // ذخیره دائمی چت‌ها روی فایل
+
         socket.to(roomId).emit('receive-message', { message, senderName });
     });
 

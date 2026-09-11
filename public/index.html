@@ -533,6 +533,15 @@
         socket.on('opponent-left', (msg) => {
             document.getElementById('status-msg').innerText = msg;
         });
+        // بارگذاری تاریخچه چت‌های قبلی گروه موقع ورود
+socket.on('load-chat-history', (history) => {
+    const chatBox = document.getElementById('chat-messages');
+    chatBox.innerHTML = ''; // پاکسازی باکس
+    history.forEach(chat => {
+        const isMe = (chat.senderName === myName);
+        appendMessage(chat.senderName, chat.message, isMe);
+    });
+});
     </script>
 </body>
 </html>
