@@ -31,7 +31,7 @@ function saveData(file, data) {
 
 let users = loadData(USERS_FILE);
 let roomChats = loadData(CHATS_FILE);
-let groupProfiles = {}; // ذخیره اطلاعات پروفایل گروه‌ها
+let groupProfiles = {};
 
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
@@ -81,6 +81,10 @@ io.on('connection', (socket) => {
             if (r !== socket.id) socket.leave(r);
         });
 
+        if (!username || typeof username !== 'string') {
+            return;
+        }
+
         socket.join(roomId);
 
         if (!rooms[roomId]) {
@@ -104,7 +108,6 @@ io.on('connection', (socket) => {
             };
         }
 
-        // پروفایل پیش‌فرض گروه اگر ساخته نشده باشد
         if (!groupProfiles[roomId]) {
             groupProfiles[roomId] = {
                 title: roomId,
@@ -121,14 +124,15 @@ io.on('connection', (socket) => {
                 room.players.push(socket.id);
                 room.usernames[socket.id] = username;
                 
-                // اصلاح خط ۱۲۴ برای جلوگیری از خطای کرش سرور
-if (!users[username]) {
-    users[username] = { password: '', coins: 300 };
-}
-if (!users[username].coins) {
-    users[username].coins = 300;
-}
-room.scores[socket.id] = users[username].coins;
+                if (!users[username]) {
+                    users[username] = { password: '', coins: 300 };
+                    saveData(USERS_FILE, users);
+                }
+                if (typeof users[username].coins !== 'number') {
+                    users[username].coins = 300;
+                }
+
+                room.scores[socket.id] = users[username].coins;
 
                 socket.emit('joined', { coins: room.scores[socket.id] });
                 socket.emit('room-profile', groupProfiles[roomId]);
@@ -157,7 +161,6 @@ room.scores[socket.id] = users[username].coins;
         }
     });
 
-    // به‌روزرسانی پروفایل گروه
     socket.on('update-group-profile', ({ roomId, title, description }) => {
         if (groupProfiles[roomId]) {
             if (title) groupProfiles[roomId].title = title;
@@ -394,15 +397,13 @@ room.scores[socket.id] = users[username].coins;
         }
     });
 
-    // مدیریت چت گروهی و ارسال به همه (حتی فرستنده)
-socket.on('send-message', ({ roomId, message, senderName }) => {
-    if (!roomChats[roomId]) roomChats[roomId] = [];
-    roomChats[roomId].push({ senderName, message });
-    saveData(CHATS_FILE, roomChats);
+    socket.on('send-message', ({ roomId, message, senderName }) => {
+        if (!roomChats[roomId]) roomChats[roomId] = [];
+        roomChats[roomId].push({ senderName, message });
+        saveData(CHATS_FILE, roomChats);
 
-    // ارسال به همه اعضای اتاق از جمله فرستنده
-    io.to(roomId).emit('receive-message', { message, senderName });
-});
+        io.to(roomId).emit('receive-message', { message, senderName });
+    });
 
     socket.on('disconnect', () => {
         for (let roomId in rooms) {
@@ -416,10 +417,6 @@ socket.on('send-message', ({ roomId, message, senderName }) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
