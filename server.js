@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
         if (room.players.length < 2) {
             room.players.push(socket.id);
-            room.scores[socket.id] = 500; // سکه اولیه ۵۰۰
+            room.scores[socket.id] = 500;
             room.names[socket.id] = playerName || 'بازیکن';
 
             socket.emit('joined', { coins: 500 });
