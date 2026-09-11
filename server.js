@@ -25,7 +25,10 @@ io.on('connection', (socket) => {
                 players: [],
                 scores: {},
                 names: {},
-                choices: {}
+                gameType: 'rps', // پیش‌فرض سنگ‌کاغذ‌قیچی
+                choices: {},     // برای سنگ‌کاغذ‌قیچی
+                xoBoard: Array(9).fill(''), // صفحه دوز
+                xoTurn: null     // نوبت بازیکن در دوز
             };
         }
 
@@ -40,7 +43,14 @@ io.on('connection', (socket) => {
                 socket.emit('joined', { coins: 300 });
 
                 if (room.players.length === 2) {
-                    io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
+                    room.xoTurn = room.players[0]; // بازیکن اول شروع کننده دوز (X)
+                    io.to(roomId).emit('start-game', {
+                        msg: 'حریف متصل شد! بازی شروع شد.',
+                        p1Id: room.players[0],
+                        p2Id: room.players[1],
+                        p1Name: room.names[room.players[0]],
+                        p2Name: room.names[room.players[1]]
+                    });
                 }
             } else {
                 socket.emit('room-full', 'این اتاق پر است!');
@@ -49,10 +59,21 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('make-move', ({ roomId, move }) => {
+    // تغییر حالت بازی (بین سنگ‌کاغذ‌قیچی و دوز)
+    socket.on('change-game', ({ roomId, gameType }) => {
         let room = rooms[roomId];
         if (!room) return;
+        room.gameType = gameType;
+        room.choices = {};
+        room.xoBoard = Array(9).fill('');
+        room.xoTurn = room.players[0];
+        io.to(roomId).emit('game-changed', { gameType, xoBoard: room.xoBoard, xoTurn: room.xoTurn });
+    });
 
+    // منطق سنگ‌کاغذ‌قیچی
+    socket.on('make-move', ({ roomId, move }) => {
+        let room = rooms[roomId];
+        if (!room || room.gameType !== 'rps') return;
         if (room.scores[socket.id] <= 0) return;
 
         room.choices[socket.id] = move;
@@ -60,7 +81,6 @@ io.on('connection', (socket) => {
         if (Object.keys(room.choices).length === 2) {
             const p1 = room.players[0];
             const p2 = room.players[1];
-
             const c1 = room.choices[p1];
             const c2 = room.choices[p2];
 
@@ -94,18 +114,63 @@ io.on('connection', (socket) => {
         }
     });
 
-    // درخواست شارژ سکه بعد از واریز پول به حساب شما
-    socket.on('request-refill', ({ roomId }) => {
-        // اینجا می‌تونی به حریف یا سرور اعلام کنی
-        socket.emit('refill-pending', 'درخواست واریز شما ثبت شد. پس از واریز به حساب سازنده (یاسین افژولی)، سکه شما شارژ خواهد شد.');
-    });
-
-    // (آپشنال) اگر خواستی دستی سکه رو شارژ کنی می‌تونی این رو صدا بزنی
-    socket.on('admin-refill', ({ roomId, targetSocketId }) => {
+    // منطق بازی دوز (XO)
+    socket.on('make-xo-move', ({ roomId, index }) => {
         let room = rooms[roomId];
-        if (room && room.scores[targetSocketId] !== undefined) {
-            room.scores[targetSocketId] = 300;
-            io.to(roomId).emit('coins-updated', { socketId: targetSocketId, newCoins: 300 });
+        if (!room || room.gameType !== 'xo') return;
+        if (room.xoTurn !== socket.id) return; // بررسی نوبت
+        if (room.xoBoard[index] !== '') return; // خانه پر نباشد
+
+        const symbol = socket.id === room.players[0] ? 'X' : 'O';
+        room.xoBoard[index] = symbol;
+
+        // تغییر نوبت
+        room.xoTurn = room.players.find(id => id !== socket.id);
+
+        // بررسی برنده در دوز
+        const winPatterns = [
+            [0,1,2], [3,4,5], [6,7,8], // افقی
+            [0,3,6], [1,4,7], [2,5,8], // عمودی
+            [0,4,8], [2,4,6]          // اریب
+        ];
+
+        let winner = null;
+        for (let pattern of winPatterns) {
+            const [a, b, c] = pattern;
+            if (room.xoBoard[a] && room.xoBoard[a] === room.xoBoard[b] && room.xoBoard[a] === room.xoBoard[c]) {
+                winner = room.xoBoard[a];
+                break;
+            }
+        }
+
+        let isDraw = !winner && room.xoBoard.every(cell => cell !== '');
+
+        if (winner) {
+            const winnerSocketId = winner === 'X' ? room.players[0] : room.players[1];
+            const loserSocketId = room.players.find(id => id !== winnerSocketId);
+
+            room.scores[winnerSocketId] += 50;
+            room.scores[loserSocketId] -= 50;
+            if (room.scores[loserSocketId] < 0) room.scores[loserSocketId] = 0;
+
+            io.to(roomId).emit('xo-game-over', {
+                board: room.xoBoard,
+                winnerId: winnerSocketId,
+                myCoins1: room.scores[room.players[0]],
+                myCoins2: room.scores[room.players[1]]
+            });
+            // ریست جدول برای دور بعد
+            room.xoBoard = Array(9).fill('');
+        } else if (isDraw) {
+            io.to(roomId).emit('xo-game-over', {
+                board: room.xoBoard,
+                winnerId: 'draw',
+                myCoins1: room.scores[room.players[0]],
+                myCoins2: room.scores[room.players[1]]
+            });
+            room.xoBoard = Array(9).fill('');
+        } else {
+            io.to(roomId).emit('xo-update', { board: room.xoBoard, xoTurn: room.xoTurn });
         }
     });
 
