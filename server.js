@@ -388,13 +388,15 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('send-message', ({ roomId, message, senderName }) => {
-        if (!roomChats[roomId]) roomChats[roomId] = [];
-        roomChats[roomId].push({ senderName, message });
-        saveData(CHATS_FILE, roomChats);
+    // مدیریت چت گروهی و ارسال به همه (حتی فرستنده)
+socket.on('send-message', ({ roomId, message, senderName }) => {
+    if (!roomChats[roomId]) roomChats[roomId] = [];
+    roomChats[roomId].push({ senderName, message });
+    saveData(CHATS_FILE, roomChats);
 
-        socket.to(roomId).emit('receive-message', { message, senderName });
-    });
+    // ارسال به همه اعضای اتاق از جمله فرستنده
+    io.to(roomId).emit('receive-message', { message, senderName });
+});
 
     socket.on('disconnect', () => {
         for (let roomId in rooms) {

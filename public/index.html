@@ -21,7 +21,6 @@
         
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
         
-        /* پروفایل گروه بالای چت */
         .group-profile-box { background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
         .group-info h3 { margin: 0; font-size: 14px; color: #38bdf8; }
         .group-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--tg-gray); }
@@ -124,7 +123,7 @@
         <!-- محیط اصلی گروه -->
         <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
             
-            <!-- پروفایل گروه (تلگرام استایل) -->
+            <!-- پروفایل گروه -->
             <div class="group-profile-box">
                 <div class="group-info">
                     <h3 id="group-title-view">نام گروه</h3>
@@ -133,7 +132,7 @@
                 <button class="edit-profile-btn" onclick="openEditProfile()">✏️ ویرایش</button>
             </div>
 
-            <!-- پنل ویرایش پروفایل گروه (پاپ‌آپ مخفی) -->
+            <!-- پنل ویرایش پروفایل گروه -->
             <div id="edit-profile-panel" class="hidden" style="background: #0b1329; padding: 8px; border-radius: 8px; margin-bottom: 6px; text-align: right;">
                 <input type="text" id="edit-group-title" placeholder="نام جدید گروه" style="font-size: 11px; padding: 5px;">
                 <input type="text" id="edit-group-desc" placeholder="توضیحات جدید گروه" style="font-size: 11px; padding: 5px;">
@@ -224,14 +223,21 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let currentRoom = '';
+        let currentRoom = localStorage.getItem('chat_game_room') || '';
         let myName = localStorage.getItem('chat_game_user') || '';
 
         window.onload = () => {
             if (myName) {
                 document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('lobby').classList.remove('hidden');
-                document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
+                if (currentRoom) {
+                    // اگر کاربر قبل از رفرش داخل اتاق بوده، مستقیم بفرستش داخل همون اتاق
+                    socket.emit('join-room', { roomId: currentRoom, username: myName });
+                    document.getElementById('game-room').classList.remove('hidden');
+                    document.getElementById('btn-leave').classList.remove('hidden');
+                } else {
+                    document.getElementById('lobby').classList.remove('hidden');
+                    document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
+                }
             }
         };
 
@@ -303,7 +309,9 @@
 
         function logoutUser() {
             localStorage.removeItem('chat_game_user');
+            localStorage.removeItem('chat_game_room');
             myName = '';
+            currentRoom = '';
             document.getElementById('lobby').classList.add('hidden');
             document.getElementById('auth-section').classList.remove('hidden');
             document.getElementById('login-user').value = '';
@@ -317,6 +325,7 @@
                 return;
             }
             currentRoom = code;
+            localStorage.setItem('chat_game_room', currentRoom); // ذخیره اتاق در مرورگر
             socket.emit('join-room', { roomId: currentRoom, username: myName });
 
             document.getElementById('lobby').classList.add('hidden');
@@ -326,13 +335,13 @@
 
         function leaveGroup() {
             currentRoom = '';
+            localStorage.removeItem('chat_game_room'); // حذف اتاق از حافظه
             document.getElementById('game-room').classList.add('hidden');
             document.getElementById('btn-leave').classList.add('hidden');
             document.getElementById('lobby').classList.remove('hidden');
             document.getElementById('room-code').value = '';
         }
 
-        // توابع پروفایل گروه
         function openEditProfile() {
             document.getElementById('edit-profile-panel').classList.remove('hidden');
             document.getElementById('edit-group-title').value = document.getElementById('group-title-view').innerText;
@@ -544,13 +553,15 @@
             const msg = input.value.trim();
             if (!msg) return;
 
-            appendMessage(myName, msg, true);
+            // پیام مستقیماً به سرور فرستاده می‌شود و سرور به همه (از جمله خودمان) پخش می‌کند
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
+        // دریافت پیام از سرور (برای همه اعضا از جمله فرستنده)
         socket.on('receive-message', (data) => {
-            appendMessage(data.senderName, data.message, false);
+            const isMe = (data.senderName === myName);
+            appendMessage(data.senderName, data.message, isMe);
         });
 
         socket.on('load-chat-history', (history) => {
