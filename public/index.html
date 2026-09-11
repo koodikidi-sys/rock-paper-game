@@ -34,6 +34,7 @@
             padding: 4px 8px;
             border-radius: 4px;
         }
+        .bank-box { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; text-align: right; }
     </style>
 </head>
 <body>
@@ -62,10 +63,16 @@
                 <button onclick="makeMove('قیچی')">✌️ قیچی</button>
             </div>
 
-            <!-- دکمه خرید سکه (هنگام تمام شدن سکه‌ها ظاهر می‌شود) -->
+            <!-- بخش پرداخت و خرید سکه در صورت ورشکستگی -->
             <div id="buy-section" class="hidden">
-                <p style="color: #ef4444; font-weight: bold;">سکه‌های شما تمام شد! برای ادامه بازی باید سکه بخرید.</p>
-                <button class="btn-warning" onclick="buyCoins()">🛒 خرید ۳۰۰ سکه مجدد</button>
+                <p style="color: #ef4444; font-weight: bold;">سکه‌های شما تمام شد! 😢</p>
+                <div class="bank-box">
+                    برای دریافت ۳۰۰ سکه جدید، مبلغ دلخواه را به حساب سازنده واریز کنید:<br>
+                    <b>شماره کارت:</b> بزودی...<br>
+                    <b>به نام:</b> یاسین افژولی<br>
+                    پس از واریز، به سازنده پیام دهید تا حسابتان شارژ شود.
+                </div>
+                <button class="btn-warning" onclick="requestRefill()" style="margin-top: 10px;">اعلام پرداخت به سازنده</button>
             </div>
 
             <div id="result-box" class="hidden"></div>
@@ -80,7 +87,7 @@
         </div>
     </div>
 
-    <div class="footer-credit">طراح و سازنده: یاسین افژولی[cite: 4]</div>
+    <div class="footer-credit">طراح و سازنده: یاسین افژولی</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -135,7 +142,6 @@
                 <b style="color: #4ade80;">${data.result}</b>
             `;
 
-            // بررسی اتمام سکه
             if (data.myCoins <= 0) {
                 document.getElementById('controls').classList.add('hidden');
                 document.getElementById('buy-section').classList.remove('hidden');
@@ -146,15 +152,21 @@
             }
         });
 
-        function buyCoins() {
-            socket.emit('buy-coins', { roomId: currentRoom });
+        function requestRefill() {
+            socket.emit('request-refill', { roomId: currentRoom });
         }
 
-        socket.on('coins-updated', (newCoins) => {
-            document.getElementById('my-coins').innerText = newCoins;
-            document.getElementById('buy-section').classList.add('hidden');
-            document.getElementById('controls').classList.remove('hidden');
-            document.getElementById('status-msg').innerText = 'سکه خریداری شد! بازی رو ادامه دهید:';
+        socket.on('refill-pending', (msg) => {
+            alert(msg);
+        });
+
+        socket.on('coins-updated', (data) => {
+            if (data.socketId === socket.id) {
+                document.getElementById('my-coins').innerText = data.newCoins;
+                document.getElementById('buy-section').classList.add('hidden');
+                document.getElementById('controls').classList.remove('hidden');
+                document.getElementById('status-msg').innerText = 'حساب شما شارژ شد! بازی رو ادامه دهید:';
+            }
         });
 
         function checkEnter(event) {

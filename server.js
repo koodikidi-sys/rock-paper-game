@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
         if (!room.players.includes(socket.id)) {
             if (room.players.length < 2) {
                 room.players.push(socket.id);
-                room.scores[socket.id] = 300; // سکه اولیه ۳۰۰
+                room.scores[socket.id] = 300;
                 room.names[socket.id] = playerName || 'بازیکن';
 
                 socket.emit('joined', { coins: 300 });
@@ -53,7 +53,6 @@ io.on('connection', (socket) => {
         let room = rooms[roomId];
         if (!room) return;
 
-        // اگر سکه بازیکن تمام شده باشد، اجازه بازی ندارد
         if (room.scores[socket.id] <= 0) return;
 
         room.choices[socket.id] = move;
@@ -85,7 +84,6 @@ io.on('connection', (socket) => {
                 room.scores[p1] -= 50;
             }
 
-            // جلوگیری از منفی شدن سکه‌ها
             if (room.scores[p1] < 0) room.scores[p1] = 0;
             if (room.scores[p2] < 0) room.scores[p2] = 0;
 
@@ -96,12 +94,18 @@ io.on('connection', (socket) => {
         }
     });
 
-    // خرید و شارژ مجدد سکه در صورت اتمام
-    socket.on('buy-coins', ({ roomId }) => {
+    // درخواست شارژ سکه بعد از واریز پول به حساب شما
+    socket.on('request-refill', ({ roomId }) => {
+        // اینجا می‌تونی به حریف یا سرور اعلام کنی
+        socket.emit('refill-pending', 'درخواست واریز شما ثبت شد. پس از واریز به حساب سازنده (یاسین افژولی)، سکه شما شارژ خواهد شد.');
+    });
+
+    // (آپشنال) اگر خواستی دستی سکه رو شارژ کنی می‌تونی این رو صدا بزنی
+    socket.on('admin-refill', ({ roomId, targetSocketId }) => {
         let room = rooms[roomId];
-        if (room && room.scores[socket.id] !== undefined) {
-            room.scores[socket.id] = 300; // شارژ مجدد ۳۰۰ سکه
-            socket.emit('coins-updated', room.scores[socket.id]);
+        if (room && room.scores[targetSocketId] !== undefined) {
+            room.scores[targetSocketId] = 300;
+            io.to(roomId).emit('coins-updated', { socketId: targetSocketId, newCoins: 300 });
         }
     });
 
@@ -110,7 +114,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('کاربر خارج شد:', socket.id);
         for (let roomId in rooms) {
             rooms[roomId].players = rooms[roomId].players.filter(id => id !== socket.id);
             if (rooms[roomId].players.length === 0) {
