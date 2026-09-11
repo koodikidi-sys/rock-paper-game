@@ -6,7 +6,7 @@
     <title>پلتفرم بازی آنلاین</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
         input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
         input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
         button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
@@ -20,8 +20,8 @@
         }
         .donate-header-btn:hover { background-color: #db2777; }
 
-        .game-selector { display: flex; gap: 5px; margin-bottom: 12px; }
-        .game-selector button { background: #334155; font-size: 13px; padding: 8px; margin: 0; }
+        .game-selector { display: flex; gap: 4px; margin-bottom: 12px; }
+        .game-selector button { background: #334155; font-size: 11px; padding: 8px 4px; margin: 0; }
         .game-selector button.active { background: #6366f1; }
 
         .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
@@ -33,6 +33,10 @@
         .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
         .xo-cell { background: #0f172a; border: 2px solid #334155; height: 60px; font-size: 28px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 8px; }
         .xo-cell:hover { background: #1e293b; border-color: #6366f1; }
+
+        /* استایل بخش تاس */
+        .dice-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 10px 0; }
+        .dice-result-text { font-size: 14px; line-height: 1.6; text-align: right; margin-top: 10px; }
 
         .chat-container { margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: right; }
         #chat-messages { height: 80px; overflow-y: auto; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; display: flex; flex-direction: column; gap: 4px; }
@@ -52,7 +56,7 @@
     <div class="container">
         <h2>پلتفرم بازی آنلاین 🎮</h2>
         
-        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖حمایت مالی برای خفن تر کردن بازی</a>
+        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی[cite: 4]</a>
 
         <div id="lobby">
             <p>نام خود و کد اتاق را وارد کنید:</p>
@@ -66,11 +70,12 @@
             <div class="game-selector">
                 <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ قیچی</button>
                 <button id="btn-xo" onclick="switchGame('xo')">بازی دوز (XO)</button>
+                <button id="btn-dice" onclick="switchGame('dice')">تاس چندنفره 🎲</button>
             </div>
 
             <div class="stats">
                 <div>💰 سکه شما: <span id="my-coins">300</span></div>
-                <div>⚔️ سکه حریف: <span id="opp-coins">300</span></div>
+                <div id="player-count-box">👥 نفرات: <span id="player-count">1</span>/4</div>
             </div>
 
             <div id="status-msg">در انتظار ورود حریف...</div>
@@ -100,6 +105,14 @@
                 </div>
             </div>
 
+            <!-- بخش تاس‌بازی چندنفره -->
+            <div id="dice-section" class="hidden">
+                <div class="dice-box">
+                    <button id="btn-roll" onclick="rollDice()">🎲 انداختن تاس</button>
+                    <div id="dice-result" class="dice-result-text">هنوز تاسی انداخته نشده است.</div>
+                </div>
+            </div>
+
             <!-- بخش پرداخت آنلاین در صورت ورشکستگی -->
             <div id="buy-section" class="hidden">
                 <p style="color: #ef4444; font-weight: bold;">سکه‌های شما تمام شد! 😢</p>
@@ -119,14 +132,13 @@
         </div>
     </div>
 
-    <div class="footer-credit"> ساخته شده با عشق توسط یاسین افژولی</div>
+    <div class="footer-credit">ساخته شده با عشق توسط یاسین افژولی</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let currentRoom = '';
         let myName = '';
-        let myId = '';
         let currentGame = 'rps';
 
         function connectRoom() {
@@ -146,7 +158,10 @@
 
         socket.on('joined', (data) => {
             document.getElementById('my-coins').innerText = data.coins;
-            myId = socket.id;
+        });
+
+        socket.on('update-players', (data) => {
+            document.getElementById('player-count').innerText = data.count;
         });
 
         socket.on('start-game', (data) => {
@@ -161,42 +176,59 @@
             location.reload();
         });
 
-        // تغییر بازی بین سنگ‌کاغذ‌قیچی و دوز
+        // تغییر بازی بین گزینه‌ها
         function switchGame(gameType) {
             currentGame = gameType;
+            document.getElementById('btn-rps').classList.remove('active');
+            document.getElementById('btn-xo').classList.remove('active');
+            document.getElementById('btn-dice').classList.remove('active');
+
+            document.getElementById('rps-section').classList.add('hidden');
+            document.getElementById('xo-section').classList.add('hidden');
+            document.getElementById('dice-section').classList.add('hidden');
+
             if (gameType === 'rps') {
                 document.getElementById('btn-rps').classList.add('active');
-                document.getElementById('btn-xo').classList.remove('active');
                 document.getElementById('rps-section').classList.remove('hidden');
-                document.getElementById('xo-section').classList.add('hidden');
-            } else {
+            } else if (gameType === 'xo') {
                 document.getElementById('btn-xo').classList.add('active');
-                document.getElementById('btn-rps').classList.remove('active');
                 document.getElementById('xo-section').classList.remove('hidden');
-                document.getElementById('rps-section').classList.add('hidden');
+            } else if (gameType === 'dice') {
+                document.getElementById('btn-dice').classList.add('active');
+                document.getElementById('dice-section').classList.remove('hidden');
             }
             socket.emit('change-game', { roomId: currentRoom, gameType });
         }
 
         socket.on('game-changed', (data) => {
             currentGame = data.gameType;
+            document.getElementById('btn-rps').classList.remove('active');
+            document.getElementById('btn-xo').classList.remove('active');
+            document.getElementById('btn-dice').classList.remove('active');
+
+            document.getElementById('rps-section').classList.add('hidden');
+            document.getElementById('xo-section').classList.add('hidden');
+            document.getElementById('dice-section').classList.add('hidden');
+
             if (data.gameType === 'rps') {
                 document.getElementById('btn-rps').classList.add('active');
-                document.getElementById('btn-xo').classList.remove('active');
                 document.getElementById('rps-section').classList.remove('hidden');
-                document.getElementById('xo-section').classList.add('hidden');
                 document.getElementById('controls').classList.remove('hidden');
                 document.getElementById('status-msg').innerText = 'بازی روی سنگ‌کاغذ‌قیچی تنظیم شد.';
-            } else {
+            } else if (data.gameType === 'xo') {
                 document.getElementById('btn-xo').classList.add('active');
-                document.getElementById('btn-rps').classList.remove('active');
                 document.getElementById('xo-section').classList.remove('hidden');
-                document.getElementById('rps-section').classList.add('hidden');
                 updateXoBoard(data.xoBoard, data.xoTurn);
+            } else if (data.gameType === 'dice') {
+                document.getElementById('btn-dice').classList.add('active');
+                document.getElementById('dice-section').classList.remove('hidden');
+                document.getElementById('status-msg').innerText = 'بازی تاس چندنفره آغاز شد. تاس بیندازید!';
+                document.getElementById('btn-roll').removeAttribute('disabled');
+                document.getElementById('dice-result').innerText = 'هنوز تاسی انداخته نشده است.';
             }
         });
 
-        // توابع سنگ‌کاغذ‌قیچی
+        // سنگ‌کاغذ‌قیچی
         function makeMove(move) {
             document.getElementById('status-msg').innerText = `انتخاب شما (${move}) ثبت شد. منتظر حریف...`;
             document.getElementById('controls').classList.add('hidden');
@@ -205,15 +237,9 @@
 
         socket.on('round-result', (data) => {
             document.getElementById('my-coins').innerText = data.myCoins;
-            document.getElementById('opp-coins').innerText = data.oppCoins;
-
             const resBox = document.getElementById('result-box');
             resBox.classList.remove('hidden');
-            resBox.innerHTML = `
-                انتخاب شما: ${data.myMove} <br>
-                انتخاب حریف: ${data.oppMove} <br><br>
-                <b style="color: #4ade80;">${data.result}</b>
-            `;
+            resBox.innerHTML = `انتخاب شما: ${data.myMove} <br>انتخاب حریف: ${data.oppMove} <br><br><b style="color: #4ade80;">${data.result}</b>`;
 
             checkBankruptcy(data.myCoins);
             if (data.myCoins > 0) {
@@ -222,7 +248,7 @@
             }
         });
 
-        // توابع بازی دوز (XO)
+        // دوز (XO)
         function makeXoMove(index) {
             if (currentGame !== 'xo') return;
             socket.emit('make-xo-move', { roomId: currentRoom, index });
@@ -234,10 +260,10 @@
 
         socket.on('xo-game-over', (data) => {
             updateXoBoard(data.board, null);
-            document.getElementById('my-coins').innerText = data.myCoins1; // فرض ساده برای به‌روزرسانی سکه‌ها
+            document.getElementById('my-coins').innerText = data.myCoins1;
             
             if (data.winnerId === 'draw') {
-                document.getElementById('status-msg').innerText = 'بازی دوز مساوی شد! دور جدید شروع شد.';
+                document.getElementById('status-msg').innerText = 'بازی دوز مساوی شد!';
             } else if (data.winnerId === socket.id) {
                 document.getElementById('status-msg').innerText = 'شما در دوز برنده شدید! +۵۰ سکه 🎉';
             } else {
@@ -248,9 +274,7 @@
 
         function updateXoBoard(board, turn) {
             const cells = document.querySelectorAll('.xo-cell');
-            cells.forEach((cell, idx) => {
-                cell.innerText = board[idx];
-            });
+            cells.forEach((cell, idx) => { cell.innerText = board[idx]; });
             if (turn === socket.id) {
                 document.getElementById('status-msg').innerText = 'نوبت شماست (دوز)';
             } else {
@@ -258,10 +282,49 @@
             }
         }
 
+        // تاس چندنفره
+        function rollDice() {
+            document.getElementById('btn-roll').setAttribute('disabled', 'true');
+            document.getElementById('status-msg').innerText = 'تاس شما انداخته شد. منتظر سایر بازیکنان...';
+            socket.emit('roll-dice', { roomId: currentRoom });
+        }
+
+        socket.on('dice-rolled-status', (data) => {
+            document.getElementById('status-msg').innerText = `${data.playerName} تاس خود را انداخت...`;
+        });
+
+        socket.on('dice-round-result', (data) => {
+            let text = '<b>نتایج تاس این دور:</b><br>';
+            for (let pId in data.rolls) {
+                text += `${data.names[pId]}: عدد ${data.rolls[pId]}<br>`;
+            }
+            if (data.winners.length === 1) {
+                text += `<br><b style="color: #4ade80;">برنده این دور: ${data.names[data.winners[0]]} 🎉</b>`;
+            } else {
+                text += `<br><b style="color: #eab308;">این دور مساوی شد!</b>`;
+            }
+            document.getElementById('dice-result').innerHTML = text;
+            
+            // به‌روزرسانی سکه خود کاربر
+            if (data.scores[socket.id] !== undefined) {
+                document.getElementById('my-coins').innerText = data.scores[socket.id];
+                checkBankruptcy(data.scores[socket.id]);
+            }
+
+            // فعال‌سازی مجدد دکمه تاس برای دور بعد
+            setTimeout(() => {
+                if (Number(document.getElementById('my-coins').innerText) > 0) {
+                    document.getElementById('btn-roll').removeAttribute('disabled');
+                    document.getElementById('status-msg').innerText = 'دور جدید تاس! روی دکمه کلیک کنید:';
+                }
+            }, 3000);
+        });
+
         function checkBankruptcy(coins) {
             if (coins <= 0) {
                 document.getElementById('controls').classList.add('hidden');
                 document.getElementById('xo-section').classList.add('hidden');
+                document.getElementById('dice-section').classList.add('hidden');
                 document.getElementById('buy-section').classList.remove('hidden');
                 document.getElementById('status-msg').innerText = 'ورشکست شدید!';
             }

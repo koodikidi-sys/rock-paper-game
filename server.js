@@ -28,49 +28,65 @@ io.on('connection', (socket) => {
                 gameType: 'rps', // پیش‌فرض سنگ‌کاغذ‌قیچی
                 choices: {},     // برای سنگ‌کاغذ‌قیچی
                 xoBoard: Array(9).fill(''), // صفحه دوز
-                xoTurn: null     // نوبت بازیکن در دوز
+                xoTurn: null,     // نوبت بازیکن در دوز
+                diceRolls: {}     // برای تاس‌بازی چندنفره
             };
         }
 
         let room = rooms[roomId];
 
         if (!room.players.includes(socket.id)) {
-            if (room.players.length < 2) {
+            // سقف ظرفیت: برای تاس ۴ نفر، برای بقیه ۲ نفر
+            const maxPlayers = room.gameType === 'dice' ? 4 : 2;
+
+            if (room.players.length < maxPlayers) {
                 room.players.push(socket.id);
                 room.scores[socket.id] = 300;
                 room.names[socket.id] = playerName || 'بازیکن';
 
                 socket.emit('joined', { coins: 300 });
 
-                if (room.players.length === 2) {
-                    room.xoTurn = room.players[0]; // بازیکن اول شروع کننده دوز (X)
+                // ارسال وضعیت جدید به همه اعضای اتاق
+                io.to(roomId).emit('update-players', {
+                    players: room.players.map(id => room.names[id]),
+                    count: room.players.length
+                });
+
+                if (room.gameType === 'dice' || room.players.length === 2) {
+                    if (room.gameType === 'xo') room.xoTurn = room.players[0];
                     io.to(roomId).emit('start-game', {
-                        msg: 'حریف متصل شد! بازی شروع شد.',
-                        p1Id: room.players[0],
-                        p2Id: room.players[1],
-                        p1Name: room.names[room.players[0]],
-                        p2Name: room.names[room.players[1]]
+                        msg: 'بازیکنان کامل شدند! بازی شروع شد.'
                     });
                 }
             } else {
-                socket.emit('room-full', 'این اتاق پر است!');
+                socket.emit('room-full', 'ظرفیت این اتاق پر است!');
                 return;
             }
         }
     });
 
-    // تغییر حالت بازی (بین سنگ‌کاغذ‌قیچی و دوز)
+    // تغییر حالت بازی
     socket.on('change-game', ({ roomId, gameType }) => {
         let room = rooms[roomId];
         if (!room) return;
+
+        // بررسی ظرفیت برای بازی جدید
+        const maxPlayers = gameType === 'dice' ? 4 : 2;
+        if (room.players.length > maxPlayers) {
+            socket.emit('room-full', 'تعداد بازیکنان این اتاق برای این بازی زیاد است!');
+            return;
+        }
+
         room.gameType = gameType;
         room.choices = {};
         room.xoBoard = Array(9).fill('');
         room.xoTurn = room.players[0];
+        room.diceRolls = {};
+
         io.to(roomId).emit('game-changed', { gameType, xoBoard: room.xoBoard, xoTurn: room.xoTurn });
     });
 
-    // منطق سنگ‌کاغذ‌قیچی
+    // منطق سنگ‌کاغذ‌قیچی (۲ نفره)
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
@@ -114,24 +130,21 @@ io.on('connection', (socket) => {
         }
     });
 
-    // منطق بازی دوز (XO)
+    // منطق بازی دوز (XO - دو نفره)
     socket.on('make-xo-move', ({ roomId, index }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'xo') return;
-        if (room.xoTurn !== socket.id) return; // بررسی نوبت
-        if (room.xoBoard[index] !== '') return; // خانه پر نباشد
+        if (room.xoTurn !== socket.id) return;
+        if (room.xoBoard[index] !== '') return;
 
         const symbol = socket.id === room.players[0] ? 'X' : 'O';
         room.xoBoard[index] = symbol;
-
-        // تغییر نوبت
         room.xoTurn = room.players.find(id => id !== socket.id);
 
-        // بررسی برنده در دوز
         const winPatterns = [
-            [0,1,2], [3,4,5], [6,7,8], // افقی
-            [0,3,6], [1,4,7], [2,5,8], // عمودی
-            [0,4,8], [2,4,6]          // اریب
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
         ];
 
         let winner = null;
@@ -159,7 +172,6 @@ io.on('connection', (socket) => {
                 myCoins1: room.scores[room.players[0]],
                 myCoins2: room.scores[room.players[1]]
             });
-            // ریست جدول برای دور بعد
             room.xoBoard = Array(9).fill('');
         } else if (isDraw) {
             io.to(roomId).emit('xo-game-over', {
@@ -174,6 +186,57 @@ io.on('connection', (socket) => {
         }
     });
 
+    // منطق تاس‌بازی چندنفره (تا ۴ نفر)
+    socket.on('roll-dice', ({ roomId }) => {
+        let room = rooms[roomId];
+        if (!room || room.gameType !== 'dice') return;
+        if (room.scores[socket.id] <= 0) return;
+
+        // انداختن تاس بین ۱ تا ۶
+        const roll = Math.floor(Math.random() * 6) + 1;
+        room.diceRolls[socket.id] = roll;
+
+        io.to(roomId).emit('dice-rolled-status', { playerName: room.names[socket.id] });
+
+        // اگر همه بازیکنان حاضر در اتاق تاس انداختند
+        if (Object.keys(room.diceRolls).length === room.players.length) {
+            let maxRoll = -1;
+            let winners = [];
+
+            // پیدا کردن بیشترین عدد
+            for (let pId in room.diceRolls) {
+                if (room.diceRolls[pId] > maxRoll) {
+                    maxRoll = room.diceRolls[pId];
+                    winners = [pId];
+                } else if (room.diceRolls[pId] === maxRoll) {
+                    winners.push(pId);
+                }
+            }
+
+            // اگر یک نفر برنده شد (بدون مساوی در بیشترین عدد)
+            if (winners.length === 1) {
+                const winnerId = winners[0];
+                room.players.forEach(pId => {
+                    if (pId === winnerId) {
+                        room.scores[pId] += (room.players.length - 1) * 30;
+                    } else {
+                        room.scores[pId] -= 30;
+                        if (room.scores[pId] < 0) room.scores[pId] = 0;
+                    }
+                });
+            }
+
+            io.to(roomId).emit('dice-round-result', {
+                rolls: room.diceRolls,
+                winners: winners,
+                scores: room.scores,
+                names: room.names
+            });
+
+            room.diceRolls = {};
+        }
+    });
+
     socket.on('send-message', ({ roomId, message, senderName }) => {
         socket.to(roomId).emit('receive-message', { message, senderName });
     });
@@ -184,7 +247,7 @@ io.on('connection', (socket) => {
             if (rooms[roomId].players.length === 0) {
                 delete rooms[roomId];
             } else {
-                io.to(roomId).emit('opponent-left', 'حریف از بازی خارج شد.');
+                io.to(roomId).emit('opponent-left', 'یکی از بازیکنان از بازی خارج شد.');
             }
         }
     });
