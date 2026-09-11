@@ -121,8 +121,14 @@ io.on('connection', (socket) => {
                 room.players.push(socket.id);
                 room.usernames[socket.id] = username;
                 
-                if (!users[username].coins) users[username].coins = 300;
-                room.scores[socket.id] = users[username].coins;
+                // اصلاح خط ۱۲۴ برای جلوگیری از خطای کرش سرور
+if (!users[username]) {
+    users[username] = { password: '', coins: 300 };
+}
+if (!users[username].coins) {
+    users[username].coins = 300;
+}
+room.scores[socket.id] = users[username].coins;
 
                 socket.emit('joined', { coins: room.scores[socket.id] });
                 socket.emit('room-profile', groupProfiles[roomId]);
@@ -410,6 +416,10 @@ socket.on('send-message', ({ roomId, message, senderName }) => {
     });
 });
 
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
