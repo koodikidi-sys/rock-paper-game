@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی آنلاین</title>
+    <title>بازی و چت آنلاین</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background-color: #1e293b; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
+        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
         input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
         button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
         button:hover { background-color: #4f46e5; }
-        .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
         .hidden { display: none !important; }
-        #status-msg { font-weight: bold; margin: 15px 0; color: #38bdf8; }
-        #result-box { margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+        #status-msg { font-weight: bold; margin: 10px 0; color: #38bdf8; font-size: 14px; }
+        #result-box { margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 14px; }
+        
+        /* استایل‌های بخش چت */
+        .chat-container { margin-top: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: right; }
+        #chat-messages { height: 90px; overflow-y: auto; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; display: flex; flex-direction: column; gap: 4px; }
+        .chat-input-row { display: flex; gap: 5px; margin: 0; }
+        .chat-input-row input { text-align: right; padding: 8px; margin: 0; }
+        .chat-input-row button { width: 70px; margin: 0; padding: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>سنگ کاغذ قیچی آنلاین</h2>
+        <h2>سنگ کاغذ قیچی + چت 🎮</h2>
         
         <div id="lobby">
             <p>کد اتاق را وارد کنید:</p>
@@ -43,10 +50,18 @@
             </div>
 
             <div id="result-box" class="hidden"></div>
+
+            <!-- بخش چت -->
+            <div class="chat-container">
+                <div id="chat-messages"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="پیام به حریف...">
+                    <button onclick="sendMessage()">ارسال</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- کتابخانه socket.io -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -99,6 +114,28 @@
             document.getElementById('status-msg').innerText = 'دور جدید! انتخاب کنید:';
             document.getElementById('controls').classList.remove('hidden');
         });
+
+        // ارسال پیام چت
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            appendMessage('من', msg, '#38bdf8');
+            socket.emit('send-message', { roomId: currentRoom, message: msg });
+            input.value = '';
+        }
+
+        // دریافت پیام چت از حریف
+        socket.on('receive-message', (msg) => {
+            appendMessage('حریف', msg, '#f43f5e');
+        });
+
+        function appendMessage(sender, text, color) {
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML += `<div><span style="color: ${color}; font-weight: bold;">${sender}:</span> ${text}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
         socket.on('opponent-left', (msg) => {
             document.getElementById('status-msg').innerText = msg;

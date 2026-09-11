@@ -80,6 +80,11 @@ io.on('connection', (socket) => {
         }
     });
 
+    // مدیریت ارسال پیام چت
+    socket.on('send-message', ({ roomId, message }) => {
+        socket.to(roomId).emit('receive-message', message);
+    });
+
     socket.on('disconnect', () => {
         for (let roomId in rooms) {
             rooms[roomId].players = rooms[roomId].players.filter(id => id !== socket.id);
