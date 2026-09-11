@@ -6,7 +6,7 @@
     <title>پلتفرم بازی آنلاین</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 460px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
         input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
         input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
         button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
@@ -27,7 +27,6 @@
         .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
         .hidden { display: none !important; }
         #status-msg { font-weight: bold; margin: 10px 0; color: #38bdf8; font-size: 14px; }
-        #result-box { margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 14px; }
         
         /* دوز (XO) */
         .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
@@ -42,6 +41,10 @@
         .hokm-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 10px 0; text-align: center; }
         .suit-btn { display: inline-block; width: 45px; height: 45px; margin: 5px; font-size: 22px; background: #334155; border-radius: 8px; border: none; cursor: pointer; }
         .suit-btn:hover { background: #6366f1; }
+        
+        .cards-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+        .card-item { background: #fff; color: #000; width: 42px; height: 60px; border-radius: 6px; font-weight: bold; font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; }
+        .card-item:hover { transform: translateY(-5px); background: #f1f5f9; }
 
         .chat-container { margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: right; }
         #chat-messages { height: 80px; overflow-y: auto; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; display: flex; flex-direction: column; gap: 4px; }
@@ -61,7 +64,7 @@
     <div class="container">
         <h2>پلتفرم بازی آنلاین 🎮</h2>
         
-        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی[cite: 4]</a>
+        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی</a>
 
         <div id="lobby">
             <p>نام خود و کد اتاق را وارد کنید:</p>
@@ -71,7 +74,6 @@
         </div>
 
         <div id="game-room" class="hidden">
-            <!-- انتخاب نوع بازی -->
             <div class="game-selector">
                 <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ قیچی</button>
                 <button id="btn-xo" onclick="switchGame('xo')">بازی دوز (XO)</button>
@@ -130,6 +132,10 @@
                         <button class="suit-btn" onclick="selectHokm('♦️')">♦️</button>
                         <button class="suit-btn" onclick="selectHokm('♣️')">♣️</button>
                     </div>
+                    <div style="margin-top: 15px;">
+                        <p>دست کارت‌های شما:</p>
+                        <div id="my-cards" class="cards-container"></div>
+                    </div>
                 </div>
             </div>
 
@@ -139,7 +145,7 @@
                 <div class="bank-box">
                     برای دریافت ۳۰۰ سکه جدید و ادامه بازی، از طریق لینک زیر اقدام به حمایت و پرداخت کنید:
                 </div>
-                <a href="https://daramet.com/yasinafzhooli" target="_blank" class="btn-warning" style="margin-top: 10px;">💳 پرداخت و خرید ۳۰۰ سکه[cite: 4]</a>
+                <a href="https://daramet.com/yasinafzhooli" target="_blank" class="btn-warning" style="margin-top: 10px;">💳 پرداخت و خرید ۳۰۰ سکه</a>
             </div>
 
             <div class="chat-container">
@@ -196,7 +202,6 @@
             location.reload();
         });
 
-        // تغییر بازی بین گزینه‌ها
         function switchGame(gameType) {
             currentGame = gameType;
             document.getElementById('btn-rps').classList.remove('active');
@@ -257,27 +262,59 @@
             }
         });
 
-        // رویدادهای حکم
-        socket.on('hokm-started', (data) => {
-            document.getElementById('status-msg').innerText = `حاکم این دست: ${data.hakemName}`;
-            if (data.isHakem === socket.id) {
+        // رویدادهای حکم: دریافت ۵ کارت اول
+        socket.on('hokm-deal-first', (data) => {
+            renderMyCards(data.hand);
+            if (data.isHakem) {
                 document.getElementById('hokm-controls').classList.remove('hidden');
-                document.getElementById('hokm-info').innerText = 'شما حاکم هستید.';
+                document.getElementById('hokm-info').innerText = 'شما حاکم هستید! ۵ کارت اول را دیدید، خال حکم را انتخاب کنید.';
+                document.getElementById('status-msg').innerText = 'شما حاکم هستید.';
             } else {
                 document.getElementById('hokm-controls').classList.add('hidden');
-                document.getElementById('hokm-info').innerText = `منتظر انتخاب حکم توسط ${data.hakemName}...`;
+                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب حکم است...`;
+                document.getElementById('status-msg').innerText = `منتظر حاکم (${data.hakemName})...`;
             }
         });
 
         function selectHokm(suit) {
             socket.emit('select-hokm', { roomId: currentRoom, suit });
             document.getElementById('hokm-controls').classList.add('hidden');
-            document.getElementById('hokm-info').innerText = `شما حکم را انتخاب کردید: ${suit}`;
         }
 
-        socket.on('hokm-selected', (data) => {
-            document.getElementById('status-msg').innerText = `خال حکم مشخص شد: ${data.suit}`;
+        // رویداد شروع کامل بازی حکم بعد از انتخاب حاکم
+        socket.on('hokm-game-started', (data) => {
+            renderMyCards(data.hand);
             document.getElementById('hokm-info').innerText = `حکم این دور: ${data.suit}`;
+            document.getElementById('status-msg').innerText = 'بازی حکم شروع شد! کارت خود را بازی کنید.';
+        });
+
+        function renderMyCards(hand) {
+            const container = document.getElementById('my-cards');
+            container.innerHTML = '';
+            hand.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card-item';
+                // رنگی کردن دل و خشت
+                if (card.suit === '♥️' || card.suit === '♦️') {
+                    cardEl.style.color = '#ef4444';
+                }
+                cardEl.innerText = card.name;
+                cardEl.onclick = () => playCard(card);
+                container.appendChild(cardEl);
+            });
+        }
+
+        function playCard(card) {
+            socket.emit('play-card', { roomId: currentRoom, card });
+        }
+
+        socket.on('card-played', (data) => {
+            renderMyCards(data.hand);
+            document.getElementById('status-msg').innerText = 'کارت شما بازی شد. منتظر سایرین...';
+        });
+
+        socket.on('clear-table', (data) => {
+            document.getElementById('status-msg').innerText = 'دست جمع شد! دور جدید...';
         });
 
         // سنگ‌کاغذ‌قیچی
@@ -408,7 +445,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        socket.on('opponent-let', (msg) => {
+        socket.on('opponent-left', (msg) => {
             document.getElementById('status-msg').innerText = msg;
             document.getElementById('controls').classList.add('hidden');
         });

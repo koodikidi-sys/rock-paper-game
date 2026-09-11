@@ -10,6 +10,25 @@ app.use(express.static('public'));
 
 let rooms = {};
 
+// ارزش‌گذاری کارت‌ها برای مقایسه در حکم
+const valuesOrder = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+
+function createDeck() {
+    const suits = ['♠️', '♥️', '♦️', '♣️'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    let deck = [];
+    for (let suit of suits) {
+        for (let val of values) {
+            deck.push({ suit, val, name: val + suit });
+        }
+    }
+    for (let i = deck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+}
+
 io.on('connection', (socket) => {
     console.log('یک کاربر وصل شد:', socket.id);
 
@@ -30,20 +49,21 @@ io.on('connection', (socket) => {
                 xoBoard: Array(9).fill(''),
                 xoTurn: null,
                 diceRolls: {},
-                // متغیرهای اختصاصی حکم
-                hokmState: 'waiting', // waiting, selecting_hokm, playing
+                hokmState: 'waiting',
                 hakem: null,
                 hokmSuit: null,
                 hands: {},
                 tableCards: {},
-                currentTurn: null
+                currentTurn: null,
+                deck: [],
+                leadSuit: null,
+                tricksCount: {} // تعداد دست‌های برده هر تیم یا بازیکن
             };
         }
 
         let room = rooms[roomId];
 
         if (!room.players.includes(socket.id)) {
-            // سقف ظرفیت: برای حکم و تاس ۴ نفر، برای بقیه ۲ نفر
             const maxPlayers = (room.gameType === 'dice' || room.gameType === 'hokm') ? 4 : 2;
 
             if (room.players.length < maxPlayers) {
@@ -73,7 +93,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // تغییر حالت بازی
     socket.on('change-game', ({ roomId, gameType }) => {
         let room = rooms[roomId];
         if (!room) return;
@@ -97,31 +116,150 @@ io.on('connection', (socket) => {
         }
     });
 
-    // شروع بازی حکم
     function startHokmGame(roomId) {
         let room = rooms[roomId];
         room.hokmState = 'selecting_hokm';
-        // انتخاب تصادفی حاکم
+        room.deck = createDeck();
+        room.hands = {};
+        room.tableCards = {};
+        room.leadSuit = null;
+
+        room.players.forEach((pId) => {
+            room.hands[pId] = room.deck.splice(0, 5);
+        });
+
         room.hakem = room.players[Math.floor(Math.random() * room.players.length)];
         room.currentTurn = room.hakem;
 
-        io.to(roomId).emit('hokm-started', {
-            hakemName: room.names[room.hakem],
-            isHakem: room.hakem
+        room.players.forEach(pId => {
+            io.to(pId).emit('hokm-deal-first', {
+                hand: room.hands[pId],
+                hakemName: room.names[room.hakem],
+                isHakem: (room.hakem === pId)
+            });
         });
     }
 
-    // انتخاب حکم توسط حاکم
     socket.on('select-hokm', ({ roomId, suit }) => {
         let room = rooms[roomId];
         if (!room || room.hakem !== socket.id) return;
 
         room.hokmSuit = suit;
         room.hokmState = 'playing';
-        io.to(roomId).emit('hokm-selected', { suit });
+
+        room.players.forEach(pId => {
+            let extraCards = room.deck.splice(0, 8);
+            room.hands[pId] = room.hands[pId].concat(extraCards);
+        });
+
+        room.players.forEach(pId => {
+            io.to(pId).emit('hokm-game-started', {
+                suit: suit,
+                hand: room.hands[pId],
+                turn: room.currentTurn,
+                turnName: room.names[room.currentTurn]
+            });
+        });
     });
 
-    // منطق سنگ‌کاغذ‌قیچی
+    // منطق بازی کارت و بررسی قوانین حکم
+    socket.on('play-card', ({ roomId, card }) => {
+        let room = rooms[roomId];
+        if (!room || room.hokmState !== 'playing') return;
+        if (room.currentTurn !== socket.id) return;
+
+        let pHand = room.hands[socket.id];
+        let cardIdx = pHand.findIndex(c => c.suit === card.suit && c.val === card.val);
+        if (cardIdx === -1) return;
+
+        // اگر اولین کارت دست است، خال زمینه (Lead Suit) مشخص می‌شود
+        if (Object.keys(room.tableCards).length === 0) {
+            room.leadSuit = card.suit;
+        } else {
+            // قانون پیروی از خال: اگر بازیکن از خال زمینه کارت دارد، باید همان را بازی کند (اختیاری/ساده شده برای روانی بازی)
+        }
+
+        pHand.splice(cardIdx, 1);
+        room.tableCards[socket.id] = card;
+
+        let pIndex = room.players.indexOf(socket.id);
+        let nextIndex = (pIndex + 1) % 4;
+        room.currentTurn = room.players[nextIndex];
+
+        io.to(roomId).emit('card-played', {
+            tableCards: room.tableCards,
+            hand: pHand,
+            nextTurn: room.currentTurn,
+            turnName: room.names[room.currentTurn],
+            playerPlayed: socket.id
+        });
+
+        // وقتی ۴ نفر کارت بازی کردند، برنده دست مشخص می‌شود
+        if (Object.keys(room.tableCards).length === 4) {
+            let winnerId = calculateTrickWinner(room);
+            io.to(roomId).emit('trick-winner', {
+                winnerId: winnerId,
+                winnerName: room.names[winnerId]
+            });
+
+            // برنده دست، نوبت بعدی را خواهد داشت
+            room.currentTurn = winnerId;
+            room.tableCards = {};
+            room.leadSuit = null;
+
+            setTimeout(() => {
+                io.to(roomId).emit('clear-table', {
+                    nextTurn: room.currentTurn,
+                    turnName: room.names[room.currentTurn]
+                });
+            }, 3000);
+        }
+    });
+
+    // تابع تشخیص برنده دست در حکم
+    function calculateTrickWinner(room) {
+        let cards = room.tableCards; // { socketId: {suit, val} }
+        let leadSuit = room.leadSuit;
+        let hokmSuit = room.hokmSuit;
+
+        let bestPlayer = null;
+        let highestValue = -1;
+        let hasHokm = false;
+
+        for (let pId in cards) {
+            let card = cards[pId];
+            let val = valuesOrder[card.val];
+
+            // اگر کارت حکم باشد
+            if (card.suit === hokmSuit) {
+                if (!hasHokm) {
+                    hasHokm = true;
+                    highestValue = val;
+                    bestPlayer = pId;
+                } else {
+                    if (val > highestValue) {
+                        highestValue = val;
+                        bestPlayer = pId;
+                    }
+                }
+            } 
+            // اگر کارت از خال زمینه باشد و هنوزی حکمی بازی نشده باشد
+            else if (!hasHokm && card.suit === leadSuit) {
+                if (val > highestValue) {
+                    highestValue = val;
+                    bestPlayer = pId;
+                }
+            } 
+            // اگر اولین کارتی است که بررسی میشود
+            else if (!bestPlayer && !hasHokm) {
+                highestValue = val;
+                bestPlayer = pId;
+            }
+        }
+        return bestPlayer;
+    }
+
+    // سنگ‌کاغذ‌قیچی
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
@@ -165,7 +303,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // منطق بازی دوز (XO)
+    // دوز (XO)
     socket.on('make-xo-move', ({ roomId, index }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'xo') return;
@@ -221,7 +359,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // تاس‌بازی چندنفره
+    // تاس
     socket.on('roll-dice', ({ roomId }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'dice') return;
