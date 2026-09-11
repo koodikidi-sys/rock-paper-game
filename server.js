@@ -25,19 +25,26 @@ io.on('connection', (socket) => {
                 players: [],
                 scores: {},
                 names: {},
-                gameType: 'rps', // پیش‌فرض سنگ‌کاغذ‌قیچی
-                choices: {},     // برای سنگ‌کاغذ‌قیچی
-                xoBoard: Array(9).fill(''), // صفحه دوز
-                xoTurn: null,     // نوبت بازیکن در دوز
-                diceRolls: {}     // برای تاس‌بازی چندنفره
+                gameType: 'rps',
+                choices: {},
+                xoBoard: Array(9).fill(''),
+                xoTurn: null,
+                diceRolls: {},
+                // متغیرهای اختصاصی حکم
+                hokmState: 'waiting', // waiting, selecting_hokm, playing
+                hakem: null,
+                hokmSuit: null,
+                hands: {},
+                tableCards: {},
+                currentTurn: null
             };
         }
 
         let room = rooms[roomId];
 
         if (!room.players.includes(socket.id)) {
-            // سقف ظرفیت: برای تاس ۴ نفر، برای بقیه ۲ نفر
-            const maxPlayers = room.gameType === 'dice' ? 4 : 2;
+            // سقف ظرفیت: برای حکم و تاس ۴ نفر، برای بقیه ۲ نفر
+            const maxPlayers = (room.gameType === 'dice' || room.gameType === 'hokm') ? 4 : 2;
 
             if (room.players.length < maxPlayers) {
                 room.players.push(socket.id);
@@ -46,17 +53,18 @@ io.on('connection', (socket) => {
 
                 socket.emit('joined', { coins: 300 });
 
-                // ارسال وضعیت جدید به همه اعضای اتاق
                 io.to(roomId).emit('update-players', {
                     players: room.players.map(id => room.names[id]),
                     count: room.players.length
                 });
 
-                if (room.gameType === 'dice' || room.players.length === 2) {
+                if (room.gameType === 'dice' && room.players.length === 4) {
+                    io.to(roomId).emit('start-game', { msg: 'تاس‌بازی ۴ نفره شروع شد!' });
+                } else if (room.gameType === 'hokm' && room.players.length === 4) {
+                    startHokmGame(roomId);
+                } else if ((room.gameType === 'rps' || room.gameType === 'xo') && room.players.length === 2) {
                     if (room.gameType === 'xo') room.xoTurn = room.players[0];
-                    io.to(roomId).emit('start-game', {
-                        msg: 'بازیکنان کامل شدند! بازی شروع شد.'
-                    });
+                    io.to(roomId).emit('start-game', { msg: 'بازی شروع شد!' });
                 }
             } else {
                 socket.emit('room-full', 'ظرفیت این اتاق پر است!');
@@ -70,8 +78,7 @@ io.on('connection', (socket) => {
         let room = rooms[roomId];
         if (!room) return;
 
-        // بررسی ظرفیت برای بازی جدید
-        const maxPlayers = gameType === 'dice' ? 4 : 2;
+        const maxPlayers = (gameType === 'dice' || gameType === 'hokm') ? 4 : 2;
         if (room.players.length > maxPlayers) {
             socket.emit('room-full', 'تعداد بازیکنان این اتاق برای این بازی زیاد است!');
             return;
@@ -84,9 +91,37 @@ io.on('connection', (socket) => {
         room.diceRolls = {};
 
         io.to(roomId).emit('game-changed', { gameType, xoBoard: room.xoBoard, xoTurn: room.xoTurn });
+
+        if (gameType === 'hokm' && room.players.length === 4) {
+            startHokmGame(roomId);
+        }
     });
 
-    // منطق سنگ‌کاغذ‌قیچی (۲ نفره)
+    // شروع بازی حکم
+    function startHokmGame(roomId) {
+        let room = rooms[roomId];
+        room.hokmState = 'selecting_hokm';
+        // انتخاب تصادفی حاکم
+        room.hakem = room.players[Math.floor(Math.random() * room.players.length)];
+        room.currentTurn = room.hakem;
+
+        io.to(roomId).emit('hokm-started', {
+            hakemName: room.names[room.hakem],
+            isHakem: room.hakem
+        });
+    }
+
+    // انتخاب حکم توسط حاکم
+    socket.on('select-hokm', ({ roomId, suit }) => {
+        let room = rooms[roomId];
+        if (!room || room.hakem !== socket.id) return;
+
+        room.hokmSuit = suit;
+        room.hokmState = 'playing';
+        io.to(roomId).emit('hokm-selected', { suit });
+    });
+
+    // منطق سنگ‌کاغذ‌قیچی
     socket.on('make-move', ({ roomId, move }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'rps') return;
@@ -130,7 +165,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // منطق بازی دوز (XO - دو نفره)
+    // منطق بازی دوز (XO)
     socket.on('make-xo-move', ({ roomId, index }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'xo') return;
@@ -186,24 +221,21 @@ io.on('connection', (socket) => {
         }
     });
 
-    // منطق تاس‌بازی چندنفره (تا ۴ نفر)
+    // تاس‌بازی چندنفره
     socket.on('roll-dice', ({ roomId }) => {
         let room = rooms[roomId];
         if (!room || room.gameType !== 'dice') return;
         if (room.scores[socket.id] <= 0) return;
 
-        // انداختن تاس بین ۱ تا ۶
         const roll = Math.floor(Math.random() * 6) + 1;
         room.diceRolls[socket.id] = roll;
 
         io.to(roomId).emit('dice-rolled-status', { playerName: room.names[socket.id] });
 
-        // اگر همه بازیکنان حاضر در اتاق تاس انداختند
         if (Object.keys(room.diceRolls).length === room.players.length) {
             let maxRoll = -1;
             let winners = [];
 
-            // پیدا کردن بیشترین عدد
             for (let pId in room.diceRolls) {
                 if (room.diceRolls[pId] > maxRoll) {
                     maxRoll = room.diceRolls[pId];
@@ -213,7 +245,6 @@ io.on('connection', (socket) => {
                 }
             }
 
-            // اگر یک نفر برنده شد (بدون مساوی در بیشترین عدد)
             if (winners.length === 1) {
                 const winnerId = winners[0];
                 room.players.forEach(pId => {
