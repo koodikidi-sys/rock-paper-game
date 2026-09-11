@@ -3,62 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پلتفرم چت و بازی آنلاین</title>
+    <title>گپ و بازی آنلاین - تلگرام استایل</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 460px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
-        input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
-        button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
-        button:hover { background-color: #4f46e5; }
+        :root {
+            --tg-bg: #0f172a;
+            --tg-panel: #1e293b;
+            --tg-accent: #2b5278; /* رنگ آبی تلگرامی تیره */
+            --tg-accent-hover: #386799;
+            --tg-my-message: #2b5278;
+            --tg-other-message: #182533;
+            --tg-text: #f8fafc;
+            --tg-gray: #94a3b8;
+        }
+
+        body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { background-color: var(--tg-panel); padding: 20px; border-radius: 14px; width: 100%; max-width: 440px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; display: flex; flex-direction: column; height: 90vh; max-height: 750px; }
+        
+        h2 { margin: 5px 0 15px 0; font-size: 18px; color: #38bdf8; }
+        input, button { width: 100%; padding: 10px 14px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
+        input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
+        input:focus { border-color: #38bdf8; }
+        
+        button { background-color: var(--tg-accent); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background-color: var(--tg-accent-hover); }
         .btn-warning { background-color: #eab308; color: #000; text-decoration: none; display: inline-block; box-sizing: border-box; text-align: center; }
         .btn-warning:hover { background-color: #ca8a04; }
         .btn-secondary { background-color: #334155; }
         .btn-secondary:hover { background-color: #475569; }
         
         .donate-header-btn {
-            background-color: #ec4899; color: white; text-decoration: none; display: block;
-            padding: 8px; border-radius: 8px; font-size: 13px; font-weight: bold; margin-bottom: 15px; transition: 0.2s;
+            background-color: #db2777; color: white; text-decoration: none; display: block;
+            padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 10px; transition: 0.2s;
         }
-        .donate-header-btn:hover { background-color: #db2777; }
+        .donate-header-btn:hover { background-color: #be185d; }
 
-        .game-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-bottom: 12px; }
-        .game-selector button { background: #334155; font-size: 11px; padding: 8px 4px; margin: 0; }
-        .game-selector button.active { background: #6366f1; }
+        .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
+        .game-selector button { background: #334155; font-size: 10px; padding: 6px 2px; margin: 0; }
+        .game-selector button.active { background: #2b5278; border-bottom: 2px solid #38bdf8; }
 
-        .stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
         .hidden { display: none !important; }
-        #status-msg { font-weight: bold; margin: 10px 0; color: #38bdf8; font-size: 14px; }
+        #status-msg { font-weight: bold; margin: 6px 0; color: #38bdf8; font-size: 13px; }
         
         /* بازی‌ها */
-        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .xo-cell { background: #0f172a; border: 2px solid #334155; height: 60px; font-size: 28px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 8px; }
-        .xo-cell:hover { background: #1e293b; border-color: #6366f1; }
+        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px auto; max-width: 220px; }
+        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 55px; font-size: 24px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
+        .xo-cell:hover { background: #1e293b; border-color: #38bdf8; }
 
-        .dice-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 10px 0; }
-        .dice-result-text { font-size: 14px; line-height: 1.6; text-align: right; margin-top: 10px; }
+        .dice-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; }
+        .dice-result-text { font-size: 13px; line-height: 1.5; text-align: right; margin-top: 5px; }
 
-        .hokm-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 10px 0; text-align: center; }
-        .suit-btn { display: inline-block; width: 45px; height: 45px; margin: 5px; font-size: 22px; background: #334155; border-radius: 8px; border: none; cursor: pointer; }
-        .suit-btn:hover { background: #6366f1; }
+        .hokm-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; text-align: center; }
+        .suit-btn { display: inline-block; width: 38px; height: 38px; margin: 3px; font-size: 18px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
+        .suit-btn:hover { background: #2b5278; }
         
-        .cards-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
-        .card-item { background: #fff; color: #000; width: 42px; height: 60px; border-radius: 6px; font-weight: bold; font-size: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; }
-        .card-item:hover { transform: translateY(-5px); background: #f1f5f9; }
+        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 6px; max-height: 130px; overflow-y: auto; }
+        .card-item { background: #fff; color: #000; width: 36px; height: 50px; border-radius: 4px; font-weight: bold; font-size: 13px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: 0.15s; }
+        .card-item:hover { transform: translateY(-3px); background: #f1f5f9; }
 
-        .chat-container { margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: right; }
-        #chat-messages { height: 140px; overflow-y: auto; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; display: flex; flex-direction: column; gap: 4px; }
-        .chat-input-row { display: flex; gap: 5px; margin: 0; }
-        .chat-input-row input { text-align: right; padding: 8px; margin: 0; }
-        .chat-input-row button { width: 70px; margin: 0; padding: 8px; font-size: 14px; }
+        /* بخش چت تلگرامی */
+        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 8px; margin-top: 8px; border: 1px solid #1e293b; overflow: hidden; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 13px; margin-bottom: 8px; padding: 4px; display: flex; flex-direction: column; gap: 6px; text-align: right; }
+        
+        /* حباب‌های پیام استایل تلگرام */
+        .message-bubble { max-width: 80%; padding: 8px 12px; border-radius: 10px; word-wrap: break-word; line-height: 1.4; position: relative; }
+        .message-bubble.my-message { background-color: var(--tg-my-message); align-self: flex-start; border-bottom-right-radius: 2px; }
+        .message-bubble.other-message { background-color: var(--tg-other-message); align-self: flex-end; border-bottom-left-radius: 2px; }
+        .msg-sender { font-size: 11px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
+        
+        .chat-input-row { display: flex; gap: 6px; margin: 0; }
+        .chat-input-row input { text-align: right; padding: 8px 10px; margin: 0; font-size: 13px; }
+        .chat-input-row button { width: 65px; margin: 0; padding: 8px; font-size: 13px; border-radius: 8px; }
 
-        .footer-credit {
-            position: fixed; bottom: 10px; left: 15px; font-size: 11px; color: #64748b;
-            background: rgba(15, 23, 42, 0.8); padding: 4px 8px; border-radius: 4px;
-        }
-        .bank-box { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; text-align: center; }
-        .error-msg { color: #ef4444; font-size: 13px; margin: 5px 0; }
-        .success-msg { color: #4ade80; font-size: 13px; margin: 5px 0; }
+        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 8px; }
+        .bank-box { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 12px; text-align: center; }
+        .error-msg { color: #ef4444; font-size: 12px; margin: 4px 0; }
+        .success-msg { color: #4ade80; font-size: 12px; margin: 4px 0; }
     </style>
 </head>
 <body>
@@ -68,10 +88,10 @@
         
         <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی</a>
 
-        <!-- بخش ۱: فرم ورود و ثبت‌نام -->
+        <!-- فرم ورود و ثبت‌نام -->
         <div id="auth-section">
             <div id="login-form">
-                <p>ورود به حساب کاربری:</p>
+                <p style="font-size: 14px; margin: 5px 0;">ورود به حساب کاربری:</p>
                 <input type="text" id="login-user" placeholder="نام کاربری">
                 <input type="password" id="login-pass" placeholder="رمز عبور">
                 <button onclick="loginUser()">ورود</button>
@@ -80,7 +100,7 @@
             </div>
 
             <div id="register-form" class="hidden">
-                <p>ثبت‌نام حساب جدید:</p>
+                <p style="font-size: 14px; margin: 5px 0;">ثبت‌نام حساب جدید:</p>
                 <input type="text" id="reg-user" placeholder="نام کاربری دلخواه">
                 <input type="password" id="reg-pass" placeholder="رمز عبور دلخواه">
                 <button onclick="registerUser()">ثبت‌نام و ساخت اکانت</button>
@@ -89,32 +109,31 @@
             </div>
         </div>
 
-        <!-- بخش ۲: لابی ساخت یا ورود به گروه (اتاق چت) -->
+        <!-- لابی گروه -->
         <div id="lobby" class="hidden">
-            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold;"></p>
-            <p>نام گروه و رمز عبور گروه را وارد کنید:</p>
+            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 14px;"></p>
+            <p style="font-size: 13px;">نام گروه (اتاق) را وارد کنید:</p>
             <input type="text" id="room-code" placeholder="نام گروه (مثلاً: dorehami)">
-            <input type="password" id="room-pass" placeholder="رمز گروه (اختیاری)">
-            <button onclick="connectRoom()">ورود یا ساخت گروه</button>
+            <button onclick="connectRoom()">ورود به گروه</button>
         </div>
 
-        <!-- بخش ۳: محیط اصلی گروه (چت و بازی‌ها) -->
-        <div id="game-room" class="hidden">
+        <!-- محیط اصلی گروه (چت و بازی‌ها) -->
+        <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
             <div class="game-selector">
-                <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ قیچی</button>
-                <button id="btn-xo" onclick="switchGame('xo')">بازی دوز (XO)</button>
-                <button id="btn-dice" onclick="switchGame('dice')">تاس چندنفره 🎲</button>
-                <button id="btn-hokm" onclick="switchGame('hokm')">بازی حکم ♠️</button>
+                <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ</button>
+                <button id="btn-xo" onclick="switchGame('xo')">دوز XO</button>
+                <button id="btn-dice" onclick="switchGame('dice')">تاس 🎲</button>
+                <button id="btn-hokm" onclick="switchGame('hokm')">حکم ♠️</button>
             </div>
 
             <div class="stats">
-                <div>💰 سکه شما: <span id="my-coins">300</span></div>
+                <div>💰 سکه: <span id="my-coins">300</span></div>
                 <div id="player-count-box">👥 نفرات: <span id="player-count">1</span>/4</div>
             </div>
 
-            <div id="status-msg">در انتظار ورود دوستان به گروه...</div>
+            <div id="status-msg">در انتظار دوستان...</div>
 
-            <!-- بخش‌های بازی (سنگ‌کاغذ‌قیچی، دوز، تاس، حکم) -->
+            <!-- بخش‌های بازی -->
             <div id="rps-section">
                 <div id="controls" class="hidden">
                     <button onclick="makeMove('سنگ')">✊ سنگ</button>
@@ -147,16 +166,15 @@
 
             <div id="hokm-section" class="hidden">
                 <div class="hokm-box">
-                    <div id="hokm-info">در انتظار تکمیل ۴ بازیکن برای شروع حکم...</div>
+                    <div id="hokm-info" style="font-size: 12px;">در انتظار تکمیل ۴ بازیکن...</div>
                     <div id="hokm-controls" class="hidden">
-                        <p>حاکم شما هستید! خال حکم را انتخاب کنید:</p>
+                        <p style="font-size: 12px; margin: 4px 0;">انتخاب حکم:</p>
                         <button class="suit-btn" onclick="selectHokm('♠️')">♠️</button>
                         <button class="suit-btn" onclick="selectHokm('♥️')">♥️</button>
                         <button class="suit-btn" onclick="selectHokm('♦️')">♦️</button>
                         <button class="suit-btn" onclick="selectHokm('♣️')">♣️</button>
                     </div>
-                    <div style="margin-top: 15px;">
-                        <p>دست کارت‌های شما:</p>
+                    <div>
                         <div id="my-cards" class="cards-container"></div>
                     </div>
                 </div>
@@ -164,25 +182,23 @@
 
             <!-- ورشکستگی -->
             <div id="buy-section" class="hidden">
-                <p style="color: #ef4444; font-weight: bold;">سکه‌های شما تمام شد! 😢</p>
-                <div class="bank-box">
-                    برای دریافت ۳۰۰ سکه جدید و ادامه بازی، از طریق لینک زیر اقدام به حمایت و پرداخت کنید:
-                </div>
-                <a href="https://daramet.com/yasinafzhooli" target="_blank" class="btn-warning" style="margin-top: 10px;">💳 پرداخت و خرید ۳۰۰ سکه</a>
+                <p style="color: #ef4444; font-weight: bold; font-size: 13px;">سکه‌های شما تمام شد! 😢</p>
+                <div class="bank-box">برای دریافت ۳۰۰ سکه جدید حمایت کنید:</div>
+                <a href="https://daramet.com/yasinafzhooli" target="_blank" class="btn-warning" style="margin-top: 6px; padding: 8px; font-size: 12px;">💳 پرداخت و خرید ۳۰۰ سکه</a>
             </div>
 
-            <!-- بخش چت گروهی (تلگرامی) -->
+            <!-- چت تلگرامی -->
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chat-input" placeholder="پیام در گروه..." onkeydown="checkEnter(event)">
+                    <input type="text" id="chat-input" placeholder="پیام..." onkeydown="checkEnter(event)">
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="footer-credit">ساخته شده با عشق توسط یاسین افژولی</div>
+        <div class="footer-credit">ساخته شده با عشق توسط یاسین افژولی</div>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -249,7 +265,7 @@
                 myName = data.username;
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('lobby').classList.remove('hidden');
-                document.getElementById('welcome-msg').innerText = `سلام، ${myName} خوش آمدی! 👋`;
+                document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
                 document.getElementById('my-coins').innerText = data.coins;
             } else {
                 alertBox.innerText = data.message;
@@ -333,7 +349,7 @@
                 document.getElementById('btn-rps').classList.add('active');
                 document.getElementById('rps-section').classList.remove('hidden');
                 document.getElementById('controls').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'بازی روی سنگ‌کاغذ‌قیچی تنظیم شد.';
+                document.getElementById('status-msg').innerText = 'سنگ‌کاغذ‌قیچی فعال شد.';
             } else if (data.gameType === 'xo') {
                 document.getElementById('btn-xo').classList.add('active');
                 document.getElementById('xo-section').classList.remove('hidden');
@@ -341,11 +357,11 @@
             } else if (data.gameType === 'dice') {
                 document.getElementById('btn-dice').classList.add('active');
                 document.getElementById('dice-section').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'بازی تاس چندنفره آغاز شد.';
+                document.getElementById('status-msg').innerText = 'تاس‌بازی چندنفره فعال شد.';
             } else if (data.gameType === 'hokm') {
                 document.getElementById('btn-hokm').classList.add('active');
                 document.getElementById('hokm-section').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'در انتظار تکمیل ۴ بازیکن برای حکم...';
+                document.getElementById('status-msg').innerText = 'بازی حکم فعال شد.';
             }
         });
 
@@ -353,12 +369,10 @@
             renderMyCards(data.hand);
             if (data.isHakem) {
                 document.getElementById('hokm-controls').classList.remove('hidden');
-                document.getElementById('hokm-info').innerText = 'شما حاکم هستید! ۵ کارت اول را دیدید، خال حکم را انتخاب کنید.';
-                document.getElementById('status-msg').innerText = 'شما حاکم هستید.';
+                document.getElementById('hokm-info').innerText = 'شما حاکم هستید! حکم را انتخاب کنید.';
             } else {
                 document.getElementById('hokm-controls').classList.add('hidden');
-                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب حکم است...`;
-                document.getElementById('status-msg').innerText = `منتظر حاکم (${data.hakemName})...`;
+                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب حکم...`;
             }
         });
 
@@ -369,8 +383,7 @@
 
         socket.on('hokm-game-started', (data) => {
             renderMyCards(data.hand);
-            document.getElementById('hokm-info').innerText = `حکم این دور: ${data.suit}`;
-            document.getElementById('status-msg').innerText = 'بازی حکم شروع شد! کارت خود را بازی کنید.';
+            document.getElementById('hokm-info').innerText = `حکم: ${data.suit}`;
         });
 
         function renderMyCards(hand) {
@@ -394,15 +407,12 @@
 
         socket.on('card-played', (data) => {
             renderMyCards(data.hand);
-            document.getElementById('status-msg').innerText = 'کارت شما بازی شد. منتظر سایرین...';
         });
 
-        socket.on('clear-table', (data) => {
-            document.getElementById('status-msg').innerText = 'دست جمع شد! دور جدید...';
-        });
+        socket.on('clear-table', (data) => {});
 
         function makeMove(move) {
-            document.getElementById('status-msg').innerText = `انتخاب شما (${move}) ثبت شد. منتظر حریف...`;
+            document.getElementById('status-msg').innerText = `انتخاب (${move}) ثبت شد.`;
             document.getElementById('controls').classList.add('hidden');
             socket.emit('make-move', { roomId: currentRoom, move: move });
         }
@@ -411,11 +421,10 @@
             document.getElementById('my-coins').innerText = data.myCoins;
             const resBox = document.getElementById('result-box');
             resBox.classList.remove('hidden');
-            resBox.innerHTML = `انتخاب شما: ${data.myMove} <br>انتخاب حریف: ${data.oppMove} <br><br><b style="color: #4ade80;">${data.result}</b>`;
+            resBox.innerHTML = `شما: ${data.myMove} | حریف: ${data.oppMove} <br><b style="color: #4ade80;">${data.result}</b>`;
 
             checkBankruptcy(data.myCoins);
             if (data.myCoins > 0) {
-                document.getElementById('status-msg').innerText = 'دور جدید! انتخاب کنید:';
                 document.getElementById('controls').classList.remove('hidden');
             }
         });
@@ -432,14 +441,6 @@
         socket.on('xo-game-over', (data) => {
             updateXoBoard(data.board, null);
             document.getElementById('my-coins').innerText = data.myCoins1;
-            
-            if (data.winnerId === 'draw') {
-                document.getElementById('status-msg').innerText = 'بازی دوز مساوی شد!';
-            } else if (data.winnerId === socket.id) {
-                document.getElementById('status-msg').innerText = 'شما در دوز برنده شدید! +۵۰ سکه 🎉';
-            } else {
-                document.getElementById('status-msg').innerText = 'دوز را باختید! -۵۰ سکه 😢';
-            }
             checkBankruptcy(Number(document.getElementById('my-coins').innerText));
         });
 
@@ -449,29 +450,23 @@
             if (turn === socket.id) {
                 document.getElementById('status-msg').innerText = 'نوبت شماست (دوز)';
             } else {
-                document.getElementById('status-msg').innerText = 'نوبت حریف است...';
+                document.getElementById('status-msg').innerText = 'نوبت حریف...';
             }
         }
 
         function rollDice() {
             document.getElementById('btn-roll').setAttribute('disabled', 'true');
-            document.getElementById('status-msg').innerText = 'تاس شما انداخته شد. منتظر سایر بازیکنان...';
             socket.emit('roll-dice', { roomId: currentRoom });
         }
 
         socket.on('dice-rolled-status', (data) => {
-            document.getElementById('status-msg').innerText = `${data.playerName} تاس خود را انداخت...`;
+            document.getElementById('status-msg').innerText = `${data.playerName} تاس انداخت...`;
         });
 
         socket.on('dice-round-result', (data) => {
-            let text = '<b>نتایج تاس این دور:</b><br>';
+            let text = '<b>نتایج تاس:</b><br>';
             for (let pId in data.rolls) {
-                text += `${data.names[pId]}: عدد ${data.rolls[pId]}<br>`;
-            }
-            if (data.winners.length === 1) {
-                text += `<br><b style="color: #4ade80;">برنده این دور: ${data.names[data.winners[0]]} 🎉</b>`;
-            } else {
-                text += `<br><b style="color: #eab308;">این دور مساوی شد!</b>`;
+                text += `${data.names[pId]}: ${data.rolls[pId]}<br>`;
             }
             document.getElementById('dice-result').innerHTML = text;
             
@@ -483,7 +478,6 @@
             setTimeout(() => {
                 if (Number(document.getElementById('my-coins').innerText) > 0) {
                     document.getElementById('btn-roll').removeAttribute('disabled');
-                    document.getElementById('status-msg').innerText = 'دور جدید تاس! روی دکمه کلیک کنید:';
                 }
             }, 3000);
         });
@@ -495,7 +489,6 @@
                 document.getElementById('dice-section').classList.add('hidden');
                 document.getElementById('hokm-section').classList.add('hidden');
                 document.getElementById('buy-section').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = 'ورشکست شدید!';
             }
         }
 
@@ -511,24 +504,34 @@
             const msg = input.value.trim();
             if (!msg) return;
 
-            appendMessage(myName, msg, '#38bdf8');
+            appendMessage(myName, msg, true);
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
         socket.on('receive-message', (data) => {
-            appendMessage(data.senderName, data.message, '#f43f5e');
+            appendMessage(data.senderName, data.message, false);
         });
 
-        function appendMessage(sender, text, color) {
+        // تابع ساخت حباب پیام با استایل تلگرام (تشخیص پیام خودم و دیگران)
+        function appendMessage(sender, text, isMe) {
             const chatBox = document.getElementById('chat-messages');
-            chatBox.innerHTML += `<div><span style="color: ${color}; font-weight: bold;">${sender}:</span> ${text}</div>`;
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${isMe ? 'my-message' : 'other-message'}`;
+            
+            let content = '';
+            if (!isMe) {
+                content += `<span class="msg-sender">${sender}</span>`;
+            }
+            content += `<span>${text}</span>`;
+            bubble.innerHTML = content;
+
+            chatBox.appendChild(bubble);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         socket.on('opponent-left', (msg) => {
             document.getElementById('status-msg').innerText = msg;
-            document.getElementById('controls').classList.add('hidden');
         });
     </script>
 </body>
