@@ -13,13 +13,14 @@ let rooms = {};
 io.on('connection', (socket) => {
     console.log('کاربر متصل شد:', socket.id);
 
-    socket.on('join-room', (roomId) => {
+    socket.on('join-room', ({ roomId, playerName }) => {
         socket.join(roomId);
 
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 players: [],
                 scores: {},
+                names: {},
                 choices: {}
             };
         }
@@ -28,9 +29,10 @@ io.on('connection', (socket) => {
 
         if (room.players.length < 2) {
             room.players.push(socket.id);
-            room.scores[socket.id] = 1000;
+            room.scores[socket.id] = 500; // سکه اولیه ۵۰۰
+            room.names[socket.id] = playerName || 'بازیکن';
 
-            socket.emit('joined', { coins: 1000 });
+            socket.emit('joined', { coins: 500 });
 
             if (room.players.length === 2) {
                 io.to(roomId).emit('start-game', 'حریف متصل شد! بازی شروع شد.');
@@ -80,9 +82,8 @@ io.on('connection', (socket) => {
         }
     });
 
-    // مدیریت ارسال پیام چت
-    socket.on('send-message', ({ roomId, message }) => {
-        socket.to(roomId).emit('receive-message', message);
+    socket.on('send-message', ({ roomId, message, senderName }) => {
+        socket.to(roomId).emit('receive-message', { message, senderName });
     });
 
     socket.on('disconnect', () => {

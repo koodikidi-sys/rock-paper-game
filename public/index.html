@@ -6,7 +6,7 @@
     <title>بازی و چت آنلاین</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .container { background-color: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
         input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
         input { background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center; }
         button { background-color: #6366f1; color: white; font-weight: bold; cursor: pointer; }
@@ -16,12 +16,24 @@
         #status-msg { font-weight: bold; margin: 10px 0; color: #38bdf8; font-size: 14px; }
         #result-box { margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 14px; }
         
-        /* استایل‌های بخش چت */
+        /* استایل چت */
         .chat-container { margin-top: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: right; }
         #chat-messages { height: 90px; overflow-y: auto; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; display: flex; flex-direction: column; gap: 4px; }
         .chat-input-row { display: flex; gap: 5px; margin: 0; }
         .chat-input-row input { text-align: right; padding: 8px; margin: 0; }
         .chat-input-row button { width: 70px; margin: 0; padding: 8px; font-size: 14px; }
+
+        /* برچسب سازنده در گوشه */
+        .footer-credit {
+            position: fixed;
+            bottom: 10px;
+            left: 15px;
+            font-size: 11px;
+            color: #64748b;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -30,15 +42,16 @@
         <h2>سنگ کاغذ قیچی + چت 🎮</h2>
         
         <div id="lobby">
-            <p>کد اتاق را وارد کنید:</p>
-            <input type="text" id="room-code" placeholder="مثلاً: 123">
+            <p>نام خود و کد اتاق را وارد کنید:</p>
+            <input type="text" id="player-name" placeholder="نام شما">
+            <input type="text" id="room-code" placeholder="کد اتاق (مثلاً: 123)">
             <button onclick="connectRoom()">ورود به بازی</button>
         </div>
 
         <div id="game-room" class="hidden">
             <div class="stats">
-                <div>💰 سکه شما: <span id="my-coins">1000</span></div>
-                <div>⚔️ سکه حریف: <span id="opp-coins">1000</span></div>
+                <div>💰 سکه شما: <span id="my-coins">500</span></div>
+                <div>⚔️ سکه حریف: <span id="opp-coins">500</span></div>
             </div>
 
             <div id="status-msg">در انتظار ورود حریف...</div>
@@ -51,7 +64,6 @@
 
             <div id="result-box" class="hidden"></div>
 
-            <!-- بخش چت -->
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
@@ -62,19 +74,24 @@
         </div>
     </div>
 
+    <div class="footer-credit">طراح و سازنده: یاسین افژولی</div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let currentRoom = '';
+        let myName = '';
 
         function connectRoom() {
+            myName = document.getElementById('player-name').value.trim();
             const code = document.getElementById('room-code').value.trim();
-            if (!code) {
-                alert('لطفاً کد اتاق را وارد کنید.');
+            
+            if (!myName || !code) {
+                alert('لطفاً هم نام و هم کد اتاق را وارد کنید.');
                 return;
             }
             currentRoom = code;
-            socket.emit('join-room', currentRoom);
+            socket.emit('join-room', { roomId: currentRoom, playerName: myName });
 
             document.getElementById('lobby').classList.add('hidden');
             document.getElementById('game-room').classList.remove('hidden');
@@ -115,20 +132,18 @@
             document.getElementById('controls').classList.remove('hidden');
         });
 
-        // ارسال پیام چت
         function sendMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (!msg) return;
 
-            appendMessage('من', msg, '#38bdf8');
-            socket.emit('send-message', { roomId: currentRoom, message: msg });
+            appendMessage(myName, msg, '#38bdf8');
+            socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
-        // دریافت پیام چت از حریف
-        socket.on('receive-message', (msg) => {
-            appendMessage('حریف', msg, '#f43f5e');
+        socket.on('receive-message', (data) => {
+            appendMessage(data.senderName, data.message, '#f43f5e');
         });
 
         function appendMessage(sender, text, color) {
