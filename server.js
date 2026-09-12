@@ -71,7 +71,10 @@ io.on('connection', (socket) => {
             rooms[roomId] = {
                 players: [],
                 usernames: {},
-                scores: {}
+                scores: {},
+                xoBoard: Array(9).fill(''),
+                xoTurn: null,
+                choices: {}
             };
         }
 
@@ -115,6 +118,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('update-members', memberList);
     }
 
+    // چالش و دعوت به بازی بین دو کاربر
     socket.on('challenge-player', ({ targetId, gameType, roomId }) => {
         let room = rooms[roomId];
         if (!room) return;
@@ -129,11 +133,108 @@ io.on('connection', (socket) => {
     });
 
     socket.on('accept-challenge', ({ challengerId, gameType, roomId }) => {
-        io.to(challengerId).emit('challenge-accepted', { gameType, roomId });
+        // شروع بازی دو نفره بین دعوت‌کننده و پذیرنده
+        io.to(challengerId).emit('start-matched-game', { gameType, opponentId: socket.id });
+        socket.emit('start-matched-game', { gameType, opponentId: challengerId });
+
         io.to(roomId).emit('receive-message', {
             senderName: 'سیستم',
-            message: `🎮 دعوت به بازی ${gameType} پذیرفته شد!`
+            message: `🎮 مسابقه اختصاصی در بازی ${gameType} بین کاربران شروع شد!`
         });
+    });
+
+    // منطق بازی سنگ کاغذ قیچی دو نفره
+    socket.on('make-match-rps', ({ opponentId, move, roomId }) => {
+        let room = rooms[roomId];
+        if (!room) return;
+        
+        if (!room.choices) room.choices = {};
+        room.choices[socket.id] = move;
+
+        if (room.choices[opponentId]) {
+            let p1 = socket.id;
+            let p2 = opponentId;
+            let c1 = room.choices[p1];
+            let c2 = room.choices[p2];
+
+            let res1 = '', res2 = '';
+            let u1Name = room.usernames[p1];
+            let u2Name = room.usernames[p2];
+
+            if (c1 === c2) {
+                res1 = res2 = 'مساوی!';
+            } else if (
+                (c1 === 'سنگ' && c2 === 'قیچی') ||
+                (c1 === 'کاغذ' && c2 === 'سنگ') ||
+                (c1 === 'قیچی' && c2 === 'کاغذ')
+            ) {
+                res1 = 'برنده شدید! 🎉 (+50 سکه)';
+                res2 = 'باختید! 😢 (-50 سکه)';
+                users[u1Name].coins += 50;
+                users[u2Name].coins -= 50;
+                if (users[u2Name].coins < 0) users[u2Name].coins = 0;
+            } else {
+                res1 = 'باختید! 😢 (-50 سکه)';
+                res2 = 'برنده شدید! 🎉 (+50 سکه)';
+                users[u2Name].coins += 50;
+                users[u1Name].coins -= 50;
+                if (users[u1Name].coins < 0) users[u1Name].coins = 0;
+            }
+            saveData(USERS_FILE, users);
+
+            io.to(p1).emit('match-rps-result', { myMove: c1, oppMove: c2, result: res1, newCoins: users[u1Name].coins });
+            io.to(p2).emit('match-rps-result', { myMove: c2, oppMove: c1, result: res2, newCoins: users[u2Name].coins });
+
+            room.choices = {};
+        }
+    });
+
+    // منطق بازی دوز (XO)
+    socket.on('make-match-xo', ({ opponentId, index, roomId, symbol }) => {
+        let room = rooms[roomId];
+        if (!room) return;
+        if (!room.matchBoards) room.matchBoards = {};
+        let boardKey = [socket.id, opponentId].sort().join('-');
+        if (!room.matchBoards[boardKey]) room.matchBoards[boardKey] = Array(9).fill('');
+
+        let board = room.matchBoards[boardKey];
+        if (board[index] !== '') return;
+
+        board[index] = symbol;
+        let nextSymbol = symbol === 'X' ? 'O' : 'X';
+
+        const winPatterns = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+        let winner = null;
+        for (let p of winPatterns) {
+            if (board[p[0]] && board[p[0]] === board[p[1]] && board[p[0]] === board[p[2]]) {
+                winner = board[p[0]];
+                break;
+            }
+        }
+        let isDraw = !winner && board.every(c => c !== '');
+
+        if (winner) {
+            let winnerId = (winner === symbol) ? socket.id : opponentId;
+            let loserId = (winnerId === socket.id) ? opponentId : socket.id;
+            let wName = room.usernames[winnerId];
+            let lName = room.usernames[loserId];
+
+            users[wName].coins += 50;
+            users[lName].coins -= 50;
+            if (users[lName].coins < 0) users[lName].coins = 0;
+            saveData(USERS_FILE, users);
+
+            io.to(winnerId).emit('match-xo-over', { board, result: 'برنده شدید! 🎉 (+50 سکه)', newCoins: users[wName].coins });
+            io.to(loserId).emit('match-xo-over', { board, result: 'باختید! 😢 (-50 سکه)', newCoins: users[lName].coins });
+            delete room.matchBoards[boardKey];
+        } else if (isDraw) {
+            io.to(socket.id).emit('match-xo-over', { board, result: 'مساوی!', newCoins: users[room.usernames[socket.id]].coins });
+            io.to(opponentId).emit('match-xo-over', { board, result: 'مساوی!', newCoins: users[room.usernames[opponentId]].coins });
+            delete room.matchBoards[boardKey];
+        } else {
+            io.to(socket.id).emit('match-xo-update', { board, turn: false });
+            io.to(opponentId).emit('match-xo-update', { board, turn: true });
+        }
     });
 
     socket.on('update-group-profile', ({ roomId, title, description }) => {

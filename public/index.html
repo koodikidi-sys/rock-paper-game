@@ -17,22 +17,22 @@
         }
 
         body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background-color: var(--tg-panel); padding: 18px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 94vh; max-height: 820px; box-sizing: border-box; }
+        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 95vh; max-height: 850px; box-sizing: border-box; }
         
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
-        h2 { margin: 0; font-size: 16px; color: #38bdf8; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
+        h2 { margin: 0; font-size: 15px; color: #38bdf8; }
 
-        .group-profile-box { background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
-        .group-info h3 { margin: 0; font-size: 14px; color: #38bdf8; }
-        .group-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--tg-gray); }
-        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 12px; cursor: pointer; padding: 0; width: auto; }
+        .group-profile-box { background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 8px; margin-bottom: 5px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        .group-info h3 { margin: 0; font-size: 13px; color: #38bdf8; }
+        .group-info p { margin: 2px 0 0 0; font-size: 10px; color: var(--tg-gray); }
+        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 0; width: auto; }
         
-        .members-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin-bottom: 6px; text-align: right; max-height: 70px; overflow-y: auto; }
-        .members-title { font-size: 11px; color: var(--tg-gray); margin-bottom: 3px; font-weight: bold; }
-        .member-chip { display: inline-block; background: #334155; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin: 2px; cursor: pointer; transition: 0.2s; }
+        .members-box { background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; margin-bottom: 5px; text-align: right; max-height: 65px; overflow-y: auto; }
+        .members-title { font-size: 10px; color: var(--tg-gray); margin-bottom: 2px; font-weight: bold; }
+        .member-chip { display: inline-block; background: #334155; padding: 2px 7px; border-radius: 12px; font-size: 10px; margin: 2px; cursor: pointer; transition: 0.2s; }
         .member-chip:hover { background: #386799; color: #fff; }
 
-        input, button { width: 100%; padding: 10px 12px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
+        input, button { width: 100%; padding: 9px 11px; margin: 5px 0; border-radius: 8px; border: none; font-size: 13px; box-sizing: border-box; }
         input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
         input:focus { border-color: #38bdf8; }
         
@@ -40,36 +40,39 @@
         button:hover { background-color: var(--tg-accent-hover); }
         .btn-danger { background-color: #ef4444; font-size: 11px; padding: 4px 8px; width: auto; margin: 0; }
         .btn-secondary { background-color: #334155; }
-        .btn-secondary:hover { background-color: #475569; }
         
         .donate-header-btn {
             background-color: #db2777; color: white; text-decoration: none; display: block;
-            padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 8px;
+            padding: 5px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 5px;
         }
-        .donate-header-btn:hover { background-color: #be185d; }
 
-        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 6px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 5px; font-size: 11px; }
         .hidden { display: none !important; }
 
-        .gift-box { background: rgba(255,255,255,0.03); padding: 6px; border-radius: 6px; margin-top: 5px; display: flex; gap: 4px; align-items: center; }
-        .gift-box input { margin: 0; padding: 6px; font-size: 11px; }
-        .gift-box button { margin: 0; padding: 6px; font-size: 11px; width: 75px; background-color: #10b981; }
+        /* مینی‌گیم‌ها */
+        .game-arena { background: #0b1329; border: 1px solid #334155; padding: 10px; border-radius: 10px; margin-bottom: 5px; text-align: center; }
+        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 8px auto; max-width: 160px; }
+        .xo-cell { background: #1e293b; border: 1px solid #334155; height: 45px; font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
 
-        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 6px; margin-top: 5px; border: 1px solid #1e293b; overflow: hidden; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 12px; margin-bottom: 5px; padding: 4px; display: flex; flex-direction: column; gap: 5px; text-align: right; }
+        .gift-box { background: rgba(255,255,255,0.03); padding: 5px; border-radius: 6px; margin-top: 4px; display: flex; gap: 4px; align-items: center; }
+        .gift-box input { margin: 0; padding: 5px; font-size: 11px; }
+        .gift-box button { margin: 0; padding: 5px; font-size: 11px; width: 70px; background-color: #10b981; }
+
+        .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 5px; margin-top: 4px; border: 1px solid #1e293b; overflow: hidden; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 11px; margin-bottom: 4px; padding: 4px; display: flex; flex-direction: column; gap: 4px; text-align: right; }
         
-        .message-bubble { max-width: 80%; padding: 6px 10px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
+        .message-bubble { max-width: 80%; padding: 5px 8px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
         .message-bubble.my-message { background-color: var(--tg-my-message); align-self: flex-start; border-bottom-right-radius: 2px; }
         .message-bubble.other-message { background-color: var(--tg-other-message); align-self: flex-end; border-bottom-left-radius: 2px; }
-        .msg-sender { font-size: 10px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
+        .msg-sender { font-size: 9px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
         
         .chat-input-row { display: flex; gap: 4px; margin: 0; }
-        .chat-input-row input { text-align: right; padding: 6px 8px; margin: 0; font-size: 12px; }
-        .chat-input-row button { width: 55px; margin: 0; padding: 6px; font-size: 12px; border-radius: 6px; }
+        .chat-input-row input { text-align: right; padding: 5px 7px; margin: 0; font-size: 11px; }
+        .chat-input-row button { width: 50px; margin: 0; padding: 5px; font-size: 11px; border-radius: 6px; }
 
-        .footer-credit { font-size: 10px; color: var(--tg-gray); margin-top: 6px; }
-        .error-msg { color: #ef4444; font-size: 11px; margin: 3px 0; }
-        .success-msg { color: #4ade80; font-size: 11px; margin: 3px 0; }
+        .footer-credit { font-size: 9px; color: var(--tg-gray); margin-top: 4px; }
+        .error-msg { color: #ef4444; font-size: 11px; margin: 2px 0; }
+        .success-msg { color: #4ade80; font-size: 11px; margin: 2px 0; }
     </style>
 </head>
 <body>
@@ -85,7 +88,7 @@
         <!-- فرم ورود و ثبت‌نام -->
         <div id="auth-section">
             <div id="login-form">
-                <p style="font-size: 13px; margin: 4px 0;">ورود به حساب کاربری:</p>
+                <p style="font-size: 12px; margin: 3px 0;">ورود به حساب کاربری:</p>
                 <input type="text" id="login-user" placeholder="نام کاربری">
                 <input type="password" id="login-pass" placeholder="رمز عبور">
                 <button onclick="loginUser()">ورود</button>
@@ -94,7 +97,7 @@
             </div>
 
             <div id="register-form" class="hidden">
-                <p style="font-size: 13px; margin: 4px 0;">ثبت‌نام حساب جدید:</p>
+                <p style="font-size: 12px; margin: 3px 0;">ثبت‌نام حساب جدید:</p>
                 <input type="text" id="reg-user" placeholder="نام کاربری دلخواه">
                 <input type="password" id="reg-pass" placeholder="رمز عبور دلخواه">
                 <button onclick="registerUser()">ثبت‌نام و ساخت اکانت</button>
@@ -105,14 +108,14 @@
 
         <!-- لابی گروه -->
         <div id="lobby" class="hidden">
-            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 13px;"></p>
-            <p style="font-size: 12px;">نام گروه را وارد کنید:</p>
+            <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 12px;"></p>
+            <p style="font-size: 11px;">نام گروه را وارد کنید:</p>
             <input type="text" id="room-code" placeholder="نام گروه (مثلاً: dorehami)">
             <button onclick="connectRoom()">ورود به گروه</button>
-            <button class="btn-secondary" onclick="logoutUser()" style="margin-top: 10px;">خروج از حساب کاربری 🔒</button>
+            <button class="btn-secondary" onclick="logoutUser()" style="margin-top: 8px;">خروج از حساب کاربری 🔒</button>
         </div>
 
-        <!-- محیط اصلی گروه -->
+        <!-- محیط اصلی گروه و بازی‌ها -->
         <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
             
             <!-- پروفایل گروه -->
@@ -124,13 +127,12 @@
                 <button class="edit-profile-btn" onclick="openEditProfile()">✏️ ویرایش</button>
             </div>
 
-            <!-- پنل ویرایش پروفایل گروه -->
-            <div id="edit-profile-panel" class="hidden" style="background: #0b1329; padding: 8px; border-radius: 8px; margin-bottom: 6px; text-align: right;">
-                <input type="text" id="edit-group-title" placeholder="نام جدید گروه" style="font-size: 11px; padding: 5px;">
-                <input type="text" id="edit-group-desc" placeholder="توضیحات جدید گروه" style="font-size: 11px; padding: 5px;">
+            <div id="edit-profile-panel" class="hidden" style="background: #0b1329; padding: 6px; border-radius: 8px; margin-bottom: 5px; text-align: right;">
+                <input type="text" id="edit-group-title" placeholder="نام جدید گروه" style="font-size: 11px; padding: 4px;">
+                <input type="text" id="edit-group-desc" placeholder="توضیحات جدید گروه" style="font-size: 11px; padding: 4px;">
                 <div style="display: flex; gap: 4px;">
-                    <button onclick="saveGroupProfile()" style="padding: 5px; font-size: 11px; margin: 0;">ذخیره</button>
-                    <button class="btn-secondary" onclick="closeEditProfile()" style="padding: 5px; font-size: 11px; margin: 0;">لغو</button>
+                    <button onclick="saveGroupProfile()" style="padding: 4px; font-size: 11px; margin: 0;">ذخیره</button>
+                    <button class="btn-secondary" onclick="closeEditProfile()" style="padding: 4px; font-size: 11px; margin: 0;">لغو</button>
                 </div>
             </div>
 
@@ -142,6 +144,36 @@
 
             <div class="stats">
                 <div>💰 سکه شما: <span id="my-coins">300</span></div>
+            </div>
+
+            <!-- محوطه اجرای بازی‌های دو نفره -->
+            <div id="game-arena-box" class="game-arena hidden">
+                <div id="arena-status" style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 5px;"></div>
+                
+                <!-- سنگ کاغذ قیچی -->
+                <div id="arena-rps" class="hidden">
+                    <button onclick="playMatchRps('سنگ')">✊ سنگ</button>
+                    <button onclick="playMatchRps('کاغذ')">✋ کاغذ</button>
+                    <button onclick="playMatchRps('قیچی')">✌️ قیچی</button>
+                    <div id="rps-arena-result" style="font-size: 11px; margin-top: 4px;"></div>
+                </div>
+
+                <!-- دوز XO -->
+                <div id="arena-xo" class="hidden">
+                    <div class="xo-grid" id="match-xo-board">
+                        <div class="xo-cell" onclick="playMatchXo(0)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(1)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(2)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(3)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(4)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(5)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(6)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(7)"></div>
+                        <div class="xo-cell" onclick="playMatchXo(8)"></div>
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="closeGameArena()" style="padding: 4px; font-size: 10px; margin-top: 5px;">بستن بازی و بازگشت به چت</button>
             </div>
 
             <!-- هدیه سکه -->
@@ -169,6 +201,9 @@
         const socket = io();
         let currentRoom = localStorage.getItem('chat_game_room') || '';
         let myName = localStorage.getItem('chat_game_user') || '';
+        let activeOpponentId = null;
+        let activeGameType = null;
+        let mySymbol = 'X';
 
         window.onload = () => {
             if (myName) {
@@ -337,9 +372,66 @@
             }
         });
 
-        socket.on('challenge-accepted', (data) => {
-            alert('دعوت شما پذیرفته شد!');
+        // شروع بازی پس از پذیرش درخواست
+        socket.on('start-matched-game', (data) => {
+            activeOpponentId = data.opponentId;
+            activeGameType = data.gameType;
+            mySymbol = (data.gameType === 'xo') ? 'X' : 'X'; // تعیین نماد اول
+
+            document.getElementById('game-arena-box').classList.remove('hidden');
+            document.getElementById('arena-rps').classList.add('hidden');
+            document.getElementById('arena-xo').classList.add('hidden');
+
+            if (data.gameType === 'rps') {
+                document.getElementById('arena-rps').classList.remove('hidden');
+                document.getElementById('arena-status').innerText = 'بازی سنگ‌کاغذ‌قیچی (بزنید روی گزینه)';
+                document.getElementById('rps-arena-result').innerText = '';
+            } else if (data.gameType === 'xo') {
+                document.getElementById('arena-xo').classList.remove('hidden');
+                document.getElementById('arena-status').innerText = 'بازی دوز (نوبت شما)';
+                clearXoBoard();
+            }
         });
+
+        function playMatchRps(move) {
+            socket.emit('make-match-rps', { opponentId: activeOpponentId, move, roomId: currentRoom });
+            document.getElementById('arena-status').innerText = 'منتظر پاسخ حریف...';
+        }
+
+        socket.on('match-rps-result', (data) => {
+            document.getElementById('my-coins').innerText = data.newCoins;
+            document.getElementById('arena-status').innerText = 'نتیجه راند:';
+            document.getElementById('rps-arena-result').innerHTML = `انتخاب شما: ${data.myMove} | حریف: ${data.oppMove} <br><b style="color: #4ade80;">${data.result}</b>`;
+        });
+
+        function playMatchXo(index) {
+            socket.emit('make-match-xo', { opponentId: activeOpponentId, index, roomId: currentRoom, symbol: mySymbol });
+        }
+
+        socket.on('match-xo-update', (data) => {
+            renderXoBoard(data.board);
+            document.getElementById('arena-status').innerText = data.turn ? 'نوبت شماست' : 'نوبت حریف...';
+        });
+
+        socket.on('match-xo-over', (data) => {
+            renderXoBoard(data.board);
+            document.getElementById('my-coins').innerText = data.newCoins;
+            document.getElementById('arena-status').innerHTML = `<b style="color: #4ade80;">${data.result}</b>`;
+        });
+
+        function clearXoBoard() {
+            const cells = document.querySelectorAll('.xo-cell');
+            cells.forEach(c => c.innerText = '');
+        }
+
+        function renderXoBoard(board) {
+            const cells = document.querySelectorAll('.xo-cell');
+            cells.forEach((c, i) => c.innerText = board[i]);
+        }
+
+        function closeGameArena() {
+            document.getElementById('game-arena-box').classList.add('hidden');
+        }
 
         function sendCoinGift() {
             const targetUser = document.getElementById('gift-user').value.trim();
