@@ -3,197 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>گپ و بازی آنلاین - تلگرام استایل</title>
+    <title>گپ و بازی آنلاین</title>
     <style>
-        :root {
-            --tg-bg: #0f172a;
-            --tg-panel: #1e293b;
-            --tg-accent: #2b5278;
-            --tg-accent-hover: #386799;
-            --tg-my-message: #2b5278;
-            --tg-other-message: #182533;
-            --tg-text: #f8fafc;
-            --tg-gray: #94a3b8;
-        }
-
+        :root { --tg-bg: #0f172a; --tg-panel: #1e293b; --tg-accent: #2b5278; --tg-text: #f8fafc; --tg-gray: #94a3b8; }
         body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 95vh; max-height: 850px; box-sizing: border-box; }
-        
+        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; height: 95vh; max-height: 850px; box-sizing: border-box; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
         h2 { margin: 0; font-size: 15px; color: #38bdf8; }
-
         .group-profile-box { background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 8px; margin-bottom: 5px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
         .group-info h3 { margin: 0; font-size: 13px; color: #38bdf8; }
         .group-info p { margin: 2px 0 0 0; font-size: 10px; color: var(--tg-gray); }
-        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 0; width: auto; }
-        
-        .members-box { background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; margin-bottom: 5px; text-align: right; max-height: 65px; overflow-y: auto; }
+        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 0; }
+        .members-box { background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; margin-bottom: 5px; text-align: right; max-height: 70px; overflow-y: auto; }
         .members-title { font-size: 10px; color: var(--tg-gray); margin-bottom: 2px; font-weight: bold; }
-        .member-chip { display: inline-block; background: #334155; padding: 2px 7px; border-radius: 12px; font-size: 10px; margin: 2px; cursor: pointer; transition: 0.2s; }
-        .member-chip:hover { background: #386799; color: #fff; }
-
+        .member-item { font-size: 11px; margin: 3px 0; display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 3px 6px; border-radius: 6px; }
         input, button { width: 100%; padding: 9px 11px; margin: 5px 0; border-radius: 8px; border: none; font-size: 13px; box-sizing: border-box; }
         input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
-        input:focus { border-color: #38bdf8; }
-        
         button { background-color: var(--tg-accent); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background-color: var(--tg-accent-hover); }
+        button:hover { background-color: #386799; }
         .btn-danger { background-color: #ef4444; font-size: 11px; padding: 4px 8px; width: auto; margin: 0; }
         .btn-secondary { background-color: #334155; }
-        
-        .donate-header-btn {
-            background-color: #db2777; color: white; text-decoration: none; display: block;
-            padding: 5px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 5px;
-        }
-
         .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 5px; font-size: 11px; }
         .hidden { display: none !important; }
-
-        /* مینی‌گیم‌ها */
         .game-arena { background: #0b1329; border: 1px solid #334155; padding: 10px; border-radius: 10px; margin-bottom: 5px; text-align: center; }
         .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 8px auto; max-width: 160px; }
         .xo-cell { background: #1e293b; border: 1px solid #334155; height: 45px; font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
-
-        .gift-box { background: rgba(255,255,255,0.03); padding: 5px; border-radius: 6px; margin-top: 4px; display: flex; gap: 4px; align-items: center; }
-        .gift-box input { margin: 0; padding: 5px; font-size: 11px; }
-        .gift-box button { margin: 0; padding: 5px; font-size: 11px; width: 70px; background-color: #10b981; }
-
         .chat-container { display: flex; flex-direction: column; flex-grow: 1; background: #0b1329; border-radius: 10px; padding: 5px; margin-top: 4px; border: 1px solid #1e293b; overflow: hidden; }
         #chat-messages { flex-grow: 1; overflow-y: auto; font-size: 11px; margin-bottom: 4px; padding: 4px; display: flex; flex-direction: column; gap: 4px; text-align: right; }
-        
         .message-bubble { max-width: 80%; padding: 5px 8px; border-radius: 8px; word-wrap: break-word; line-height: 1.35; position: relative; }
         .message-bubble.my-message { background-color: var(--tg-my-message); align-self: flex-start; border-bottom-right-radius: 2px; }
         .message-bubble.other-message { background-color: var(--tg-other-message); align-self: flex-end; border-bottom-left-radius: 2px; }
         .msg-sender { font-size: 9px; color: #38bdf8; margin-bottom: 2px; font-weight: bold; display: block; }
-        
         .chat-input-row { display: flex; gap: 4px; margin: 0; }
         .chat-input-row input { text-align: right; padding: 5px 7px; margin: 0; font-size: 11px; }
         .chat-input-row button { width: 50px; margin: 0; padding: 5px; font-size: 11px; border-radius: 6px; }
-
-        .footer-credit { font-size: 9px; color: var(--tg-gray); margin-top: 4px; }
-        .error-msg { color: #ef4444; font-size: 11px; margin: 2px 0; }
-        .success-msg { color: #4ade80; font-size: 11px; margin: 2px 0; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header-row">
             <h2>گپ و بازی آنلاین 💬</h2>
             <button id="btn-leave" class="btn-danger hidden" onclick="leaveGroup()">خروج 🚪</button>
         </div>
-        
-        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی برای خفن تر کردن بازی</a>
 
-        <!-- فرم ورود و ثبت‌نام -->
         <div id="auth-section">
             <div id="login-form">
-                <p style="font-size: 12px; margin: 3px 0;">ورود به حساب کاربری:</p>
                 <input type="text" id="login-user" placeholder="نام کاربری">
                 <input type="password" id="login-pass" placeholder="رمز عبور">
                 <button onclick="loginUser()">ورود</button>
-                <button class="btn-secondary" onclick="showRegister()">ساخت حساب جدید (ثبت‌نام)</button>
-                <div id="login-alert" class="error-msg"></div>
+                <button class="btn-secondary" onclick="showRegister()">ثبت‌نام</button>
+                <div id="login-alert" style="color:#ef4444; font-size:11px;"></div>
             </div>
-
             <div id="register-form" class="hidden">
-                <p style="font-size: 12px; margin: 3px 0;">ثبت‌نام حساب جدید:</p>
-                <input type="text" id="reg-user" placeholder="نام کاربری دلخواه">
-                <input type="password" id="reg-pass" placeholder="رمز عبور دلخواه">
-                <button onclick="registerUser()">ثبت‌نام و ساخت اکانت</button>
-                <button class="btn-secondary" onclick="showLogin()">بازگشت به ورود</button>
-                <div id="reg-alert" class="error-msg"></div>
+                <input type="text" id="reg-user" placeholder="نام کاربری">
+                <input type="password" id="reg-pass" placeholder="رمز عبور">
+                <button onclick="registerUser()">ثبت‌نام نهایی</button>
+                <button class="btn-secondary" onclick="showLogin()">بازگشت</button>
+                <div id="reg-alert" style="color:#ef4444; font-size:11px;"></div>
             </div>
         </div>
 
-        <!-- لابی گروه -->
         <div id="lobby" class="hidden">
             <p id="welcome-msg" style="color: #38bdf8; font-weight: bold; font-size: 12px;"></p>
-            <p style="font-size: 11px;">نام گروه را وارد کنید:</p>
-            <input type="text" id="room-code" placeholder="نام گروه (مثلاً: dorehami)">
+            <input type="text" id="room-code" placeholder="نام گروه">
             <button onclick="connectRoom()">ورود به گروه</button>
-            <button class="btn-secondary" onclick="logoutUser()" style="margin-top: 8px;">خروج از حساب کاربری 🔒</button>
+            <button class="btn-secondary" onclick="logoutUser()">خروج از حساب</button>
         </div>
 
-        <!-- محیط اصلی گروه و بازی‌ها -->
         <div id="game-room" class="hidden" style="display: flex; flex-direction: column; flex-grow: 1;">
-            
-            <!-- پروفایل گروه -->
             <div class="group-profile-box">
                 <div class="group-info">
-                    <h3 id="group-title-view">نام گروه</h3>
-                    <p id="group-desc-view">توضیحات گروه...</p>
-                </div>
-                <button class="edit-profile-btn" onclick="openEditProfile()">✏️ ویرایش</button>
-            </div>
-
-            <div id="edit-profile-panel" class="hidden" style="background: #0b1329; padding: 6px; border-radius: 8px; margin-bottom: 5px; text-align: right;">
-                <input type="text" id="edit-group-title" placeholder="نام جدید گروه" style="font-size: 11px; padding: 4px;">
-                <input type="text" id="edit-group-desc" placeholder="توضیحات جدید گروه" style="font-size: 11px; padding: 4px;">
-                <div style="display: flex; gap: 4px;">
-                    <button onclick="saveGroupProfile()" style="padding: 4px; font-size: 11px; margin: 0;">ذخیره</button>
-                    <button class="btn-secondary" onclick="closeEditProfile()" style="padding: 4px; font-size: 11px; margin: 0;">لغو</button>
+                    <h3 id="group-title-view">گروه</h3>
+                    <p id="group-desc-view">...</p>
                 </div>
             </div>
 
-            <!-- لیست اعضای آنلاین -->
             <div class="members-box">
-                <div class="members-title">👥 اعضای آنلاین (کلیک برای دعوت به بازی):</div>
+                <div class="members-title">👥 اعضای آنلاین (انتخاب بازی دلخواه):</div>
                 <div id="members-list"></div>
             </div>
 
             <div class="stats">
-                <div>💰 سکه شما: <span id="my-coins">300</span></div>
+                <div>💰 سکه: <span id="my-coins">300</span></div>
             </div>
 
-            <!-- محوطه اجرای بازی‌های دو نفره -->
             <div id="game-arena-box" class="game-arena hidden">
                 <div id="arena-status" style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 5px;"></div>
-                
-                <!-- سنگ کاغذ قیچی -->
                 <div id="arena-rps" class="hidden">
-                    <button onclick="playMatchRps('سنگ')">✊ سنگ</button>
-                    <button onclick="playMatchRps('کاغذ')">✋ کاغذ</button>
-                    <button onclick="playMatchRps('قیچی')">✌️ قیچی</button>
-                    <div id="rps-arena-result" style="font-size: 11px; margin-top: 4px;"></div>
+                    <button onclick="playRps('سنگ')">✊ سنگ</button>
+                    <button onclick="playRps('کاغذ')">✋ کاغذ</button>
+                    <button onclick="playRps('قیچی')">✌️ قیچی</button>
+                    <div id="rps-res" style="font-size: 11px; margin-top: 4px;"></div>
                 </div>
-
-                <!-- دوز XO -->
                 <div id="arena-xo" class="hidden">
-                    <div class="xo-grid" id="match-xo-board">
-                        <div class="xo-cell" onclick="playMatchXo(0)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(1)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(2)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(3)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(4)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(5)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(6)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(7)"></div>
-                        <div class="xo-cell" onclick="playMatchXo(8)"></div>
+                    <div class="xo-grid" id="xo-board">
+                        <div class="xo-cell" onclick="playXo(0)"></div>
+                        <div class="xo-cell" onclick="playXo(1)"></div>
+                        <div class="xo-cell" onclick="playXo(2)"></div>
+                        <div class="xo-cell" onclick="playXo(3)"></div>
+                        <div class="xo-cell" onclick="playXo(4)"></div>
+                        <div class="xo-cell" onclick="playXo(5)"></div>
+                        <div class="xo-cell" onclick="playXo(6)"></div>
+                        <div class="xo-cell" onclick="playXo(7)"></div>
+                        <div class="xo-cell" onclick="playXo(8)"></div>
                     </div>
                 </div>
-
-                <button class="btn-secondary" onclick="closeGameArena()" style="padding: 4px; font-size: 10px; margin-top: 5px;">بستن بازی و بازگشت به چت</button>
+                <div id="arena-dice" class="hidden">
+                    <button onclick="rollDice()">🎲 انداختن تاس</button>
+                    <div id="dice-res" style="font-size: 11px; margin-top: 4px;"></div>
+                </div>
+                <button class="btn-secondary" onclick="closeArena()" style="padding: 4px; font-size: 10px; margin-top: 5px;">بستن میز بازی</button>
             </div>
 
-            <!-- هدیه سکه -->
-            <div class="gift-box">
-                <input type="text" id="gift-user" placeholder="نام کاربری دوست..." style="flex: 2;">
-                <input type="number" id="gift-amount" placeholder="مقدار" style="flex: 1;">
-                <button onclick="sendCoinGift()">هدیه 🎁</button>
-            </div>
-
-            <!-- چت -->
             <div class="chat-container">
                 <div id="chat-messages"></div>
                 <div class="chat-input-row">
-                    <input type="text" id="chat-input" placeholder="پیام..." onkeydown="checkEnter(event)">
+                    <input type="text" id="chat-input" placeholder="پیام..." onkeydown="if(event.key==='Enter') sendMessage()">
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
         </div>
-
-        <div class="footer-credit">ساخته شده با عشق توسط یاسین افژولی</div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -201,9 +130,7 @@
         const socket = io();
         let currentRoom = localStorage.getItem('chat_game_room') || '';
         let myName = localStorage.getItem('chat_game_user') || '';
-        let activeOpponentId = null;
-        let activeGameType = null;
-        let mySymbol = 'X';
+        let activeSessionId = null;
 
         window.onload = () => {
             if (myName) {
@@ -214,290 +141,166 @@
                     document.getElementById('btn-leave').classList.remove('hidden');
                 } else {
                     document.getElementById('lobby').classList.remove('hidden');
-                    document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
+                    document.getElementById('welcome-msg').innerText = `سلام، ${myName}!`;
                 }
             }
         };
 
-        function showRegister() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.remove('hidden');
-        }
-
-        function showLogin() {
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('login-form').classList.remove('hidden');
-        }
+        function showRegister() { document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden'); }
+        function showLogin() { document.getElementById('register-form').classList.add('hidden'); document.getElementById('login-form').classList.remove('hidden'); }
 
         async function registerUser() {
-            const username = document.getElementById('reg-user').value.trim();
-            const password = document.getElementById('reg-pass').value.trim();
-            const alertBox = document.getElementById('reg-alert');
-
-            if (!username || !password) {
-                alertBox.innerText = 'لطفاً فیلدها را پر کنید.';
-                return;
-            }
-
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                alertBox.className = 'success-msg';
-                alertBox.innerText = data.message;
-                setTimeout(showLogin, 1500);
-            } else {
-                alertBox.className = 'error-msg';
-                alertBox.innerText = data.message;
-            }
+            let username = document.getElementById('reg-user').value.trim();
+            let password = document.getElementById('reg-pass').value.trim();
+            let res = await fetch('/api/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username, password}) });
+            let data = await res.json();
+            if (data.success) showLogin(); else document.getElementById('reg-alert').innerText = data.message;
         }
 
         async function loginUser() {
-            const username = document.getElementById('login-user').value.trim();
-            const password = document.getElementById('login-pass').value.trim();
-            const alertBox = document.getElementById('login-alert');
-
-            if (!username || !password) {
-                alertBox.innerText = 'لطفاً نام کاربری و رمز عبور را وارد کنید.';
-                return;
-            }
-
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-
+            let username = document.getElementById('login-user').value.trim();
+            let password = document.getElementById('login-pass').value.trim();
+            let res = await fetch('/api/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username, password}) });
+            let data = await res.json();
             if (data.success) {
                 myName = data.username;
                 localStorage.setItem('chat_game_user', myName);
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('lobby').classList.remove('hidden');
-                document.getElementById('welcome-msg').innerText = `سلام، ${myName}! 👋`;
+                document.getElementById('welcome-msg').innerText = `سلام، ${myName}!`;
                 document.getElementById('my-coins').innerText = data.coins;
             } else {
-                alertBox.innerText = data.message;
+                document.getElementById('login-alert').innerText = data.message;
             }
         }
 
         function logoutUser() {
-            localStorage.removeItem('chat_game_user');
-            localStorage.removeItem('chat_game_room');
-            myName = '';
-            currentRoom = '';
-            document.getElementById('lobby').classList.add('hidden');
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
+            localStorage.clear();
+            location.reload();
         }
 
         function connectRoom() {
-            const code = document.getElementById('room-code').value.trim();
-            if (!code) {
-                alert('لطفاً نام گروه را وارد کنید.');
-                return;
-            }
+            let code = document.getElementById('room-code').value.trim();
+            if (!code) return;
             currentRoom = code;
             localStorage.setItem('chat_game_room', currentRoom);
             socket.emit('join-room', { roomId: currentRoom, username: myName });
-
             document.getElementById('lobby').classList.add('hidden');
             document.getElementById('game-room').classList.remove('hidden');
             document.getElementById('btn-leave').classList.remove('hidden');
         }
 
         function leaveGroup() {
-            currentRoom = '';
             localStorage.removeItem('chat_game_room');
-            document.getElementById('game-room').classList.add('hidden');
-            document.getElementById('btn-leave').classList.add('hidden');
-            document.getElementById('lobby').classList.remove('hidden');
-            document.getElementById('room-code').value = '';
+            location.reload();
         }
 
-        function openEditProfile() {
-            document.getElementById('edit-profile-panel').classList.remove('hidden');
-            document.getElementById('edit-group-title').value = document.getElementById('group-title-view').innerText;
-            document.getElementById('edit-group-desc').value = document.getElementById('group-desc-view').innerText;
-        }
-
-        function closeEditProfile() {
-            document.getElementById('edit-profile-panel').classList.add('hidden');
-        }
-
-        function saveGroupProfile() {
-            const title = document.getElementById('edit-group-title').value.trim();
-            const description = document.getElementById('edit-group-desc').value.trim();
-            socket.emit('update-group-profile', { roomId: currentRoom, title, description });
-            closeEditProfile();
-        }
-
-        socket.on('room-profile', (profile) => {
-            document.getElementById('group-title-view').innerText = profile.title;
-            document.getElementById('group-desc-view').innerText = profile.description;
+        socket.on('room-profile', p => {
+            document.getElementById('group-title-view').innerText = p.title;
+            document.getElementById('group-desc-view').innerText = p.description;
         });
 
-        socket.on('update-members', (members) => {
-            const listEl = document.getElementById('members-list');
-            listEl.innerHTML = '';
+        socket.on('update-members', members => {
+            let list = document.getElementById('members-list');
+            list.innerHTML = '';
             members.forEach(m => {
                 if (m.username !== myName) {
-                    const chip = document.createElement('span');
-                    chip.className = 'member-chip';
-                    chip.innerText = `👤 ${m.username}`;
-                    chip.onclick = () => inviteToGame(m.id, m.username);
-                    listEl.appendChild(chip);
+                    let div = document.createElement('div');
+                    div.className = 'member-item';
+                    div.innerHTML = `<span>👤 ${m.username}</span> <button style="width:auto; padding:2px 6px; font-size:10px;" onclick="openGameMenu('${m.id}', '${m.username}')">بازی 🎮</button>`;
+                    list.appendChild(div);
                 }
             });
         });
 
-        function inviteToGame(targetId, targetName) {
-            const gameChoice = prompt(`انتخاب بازی برای دعوت ${targetName}:\n1. سنگ‌کاغذ‌قیچی (rps)\n2. دوز (xo)\n\nنام یا شماره بازی را وارد کنید:`, 'rps');
-            if (!gameChoice) return;
-            let gameType = (gameChoice.includes('xo') || gameChoice === '2') ? 'xo' : 'rps';
-            
-            socket.emit('challenge-player', { targetId, gameType, roomId: currentRoom });
-            alert(`دعوت‌نامه بازی به ${targetName} ارسال شد.`);
+        function openGameMenu(targetId, targetName) {
+            let g = prompt(`انتخاب نوع بازی با ${targetName}:\n1. دوز (xo)\n2. سنگ‌کاغذ‌قیچی (rps)\n3. تاس (dice)`, 'xo');
+            if (!g) return;
+            let gameType = g === '2' || g.includes('rps') ? 'rps' : (g === '3' || g.includes('dice') ? 'dice' : 'xo');
+            socket.emit('start-session', { roomId: currentRoom, gameType, participants: [socket.id, targetId] });
         }
 
-        socket.on('game-challenge-received', (data) => {
-            let accept = confirm(`${data.challengerName} شما را به بازی ${data.gameType} دعوت کرده است. قبول می‌کنید؟`);
-            if (accept) {
-                socket.emit('accept-challenge', { challengerId: data.challengerId, gameType: data.gameType, roomId: data.roomId });
-            }
-        });
-
-        // شروع بازی پس از پذیرش درخواست
-        socket.on('start-matched-game', (data) => {
-            activeOpponentId = data.opponentId;
-            activeGameType = data.gameType;
-            mySymbol = (data.gameType === 'xo') ? 'X' : 'X'; // تعیین نماد اول
-
+        socket.on('enter-session', data => {
+            activeSessionId = data.sessionId;
             document.getElementById('game-arena-box').classList.remove('hidden');
             document.getElementById('arena-rps').classList.add('hidden');
             document.getElementById('arena-xo').classList.add('hidden');
+            document.getElementById('arena-dice').classList.add('hidden');
 
-            if (data.gameType === 'rps') {
-                document.getElementById('arena-rps').classList.remove('hidden');
-                document.getElementById('arena-status').innerText = 'بازی سنگ‌کاغذ‌قیچی (بزنید روی گزینه)';
-                document.getElementById('rps-arena-result').innerText = '';
-            } else if (data.gameType === 'xo') {
+            if (data.gameType === 'xo') {
                 document.getElementById('arena-xo').classList.remove('hidden');
-                document.getElementById('arena-status').innerText = 'بازی دوز (نوبت شما)';
-                clearXoBoard();
+                document.getElementById('arena-status').innerText = 'بازی دوز جریان دارد';
+                document.querySelectorAll('.xo-cell').forEach(c => c.innerText = '');
+            } else if (data.gameType === 'rps') {
+                document.getElementById('arena-rps').classList.remove('hidden');
+                document.getElementById('arena-status').innerText = 'سنگ کاغذ قیچی';
+                document.getElementById('rps-res').innerText = '';
+            } else if (data.gameType === 'dice') {
+                document.getElementById('arena-dice').classList.remove('hidden');
+                document.getElementById('arena-status').innerText = 'مسابقه تاس';
+                document.getElementById('dice-res').innerText = '';
             }
         });
 
-        function playMatchRps(move) {
-            socket.emit('make-match-rps', { opponentId: activeOpponentId, move, roomId: currentRoom });
-            document.getElementById('arena-status').innerText = 'منتظر پاسخ حریف...';
+        function playXo(index) {
+            socket.emit('session-xo-move', { roomId: currentRoom, sessionId: activeSessionId, index });
         }
-
-        socket.on('match-rps-result', (data) => {
-            document.getElementById('my-coins').innerText = data.newCoins;
-            document.getElementById('arena-status').innerText = 'نتیجه راند:';
-            document.getElementById('rps-arena-result').innerHTML = `انتخاب شما: ${data.myMove} | حریف: ${data.oppMove} <br><b style="color: #4ade80;">${data.result}</b>`;
+        socket.on('session-xo-update', d => {
+            document.querySelectorAll('.xo-cell').forEach((c, i) => c.innerText = d.board[i]);
+            document.getElementById('arena-status').innerText = d.turn === socket.id ? 'نوبت شماست' : 'نوبت حریف...';
+        });
+        socket.on('session-xo-over', d => {
+            document.querySelectorAll('.xo-cell').forEach((c, i) => c.innerText = d.board[i]);
+            document.getElementById('arena-status').innerText = d.msg;
         });
 
-        function playMatchXo(index) {
-            socket.emit('make-match-xo', { opponentId: activeOpponentId, index, roomId: currentRoom, symbol: mySymbol });
+        function playRps(move) {
+            socket.emit('session-rps-move', { roomId: currentRoom, sessionId: activeSessionId, move });
+            document.getElementById('arena-status').innerText = 'منتظر حریف...';
         }
-
-        socket.on('match-xo-update', (data) => {
-            renderXoBoard(data.board);
-            document.getElementById('arena-status').innerText = data.turn ? 'نوبت شماست' : 'نوبت حریف...';
+        socket.on('session-rps-result', d => {
+            document.getElementById('rps-res').innerHTML = `انتخاب شما: ${d.myMove} | حریف: ${d.oppMove}<br><b>${d.result}</b>`;
+            document.getElementById('my-coins').innerText = d.newCoins;
         });
 
-        socket.on('match-xo-over', (data) => {
-            renderXoBoard(data.board);
-            document.getElementById('my-coins').innerText = data.newCoins;
-            document.getElementById('arena-status').innerHTML = `<b style="color: #4ade80;">${data.result}</b>`;
+        function rollDice() {
+            socket.emit('session-dice-roll', { roomId: currentRoom, sessionId: activeSessionId });
+        }
+        socket.on('session-dice-result', d => {
+            let txt = 'نتایج:<br>';
+            for (let id in d.rolls) txt += `${d.names[id]}: ${d.rolls[id]}<br>`;
+            document.getElementById('dice-res').innerHTML = txt;
+            document.getElementById('my-coins').innerText = d.newCoins;
         });
 
-        function clearXoBoard() {
-            const cells = document.querySelectorAll('.xo-cell');
-            cells.forEach(c => c.innerText = '');
-        }
-
-        function renderXoBoard(board) {
-            const cells = document.querySelectorAll('.xo-cell');
-            cells.forEach((c, i) => c.innerText = board[i]);
-        }
-
-        function closeGameArena() {
-            document.getElementById('game-arena-box').classList.add('hidden');
-        }
-
-        function sendCoinGift() {
-            const targetUser = document.getElementById('gift-user').value.trim();
-            const amount = document.getElementById('gift-amount').value.trim();
-            if (!targetUser || !amount) {
-                alert('نام کاربری و مقدار سکه را وارد کنید.');
-                return;
-            }
-            socket.emit('transfer-coins', { targetUser, amount, senderUser: myName });
-        }
-
-        socket.on('transfer-result', (data) => {
-            alert(data.message);
-            if (data.success) {
-                document.getElementById('my-coins').innerText = data.newCoins;
-                document.getElementById('gift-user').value = '';
-                document.getElementById('gift-amount').value = '';
-            }
-        });
-
-        socket.on('joined', (data) => {
-            document.getElementById('my-coins').innerText = data.coins;
-        });
-
-        function checkEnter(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
+        function closeArena() { document.getElementById('game-arena-box').classList.add('hidden'); }
 
         function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
+            let input = document.getElementById('chat-input');
+            let msg = input.value.trim();
             if (!msg) return;
-
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
-
-        socket.on('receive-message', (data) => {
-            const isMe = (data.senderName === myName);
-            appendMessage(data.senderName, data.message, isMe);
+        socket.on('receive-message', d => {
+            let box = document.getElementById('chat-messages');
+            let div = document.createElement('div');
+            div.className = `message-bubble ${d.senderName === myName ? 'my-message' : 'other-message'}`;
+            div.innerHTML = `<span class="msg-sender">${d.senderName}</span><span>${d.message}</span>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         });
-
-        socket.on('load-chat-history', (history) => {
-            const chatBox = document.getElementById('chat-messages');
-            chatBox.innerHTML = '';
-            history.forEach(chat => {
-                appendMessage(chat.senderName, chat.message, (chat.senderName === myName));
+        socket.on('load-chat-history', h => {
+            let box = document.getElementById('chat-messages');
+            box.innerHTML = '';
+            h.forEach(m => {
+                let div = document.createElement('div');
+                div.className = `message-bubble ${m.senderName === myName ? 'my-message' : 'other-message'}`;
+                div.innerHTML = `<span class="msg-sender">${m.senderName}</span><span>${m.message}</span>`;
+                box.appendChild(div);
             });
+            box.scrollTop = box.scrollHeight;
         });
-
-        function appendMessage(sender, text, isMe) {
-            const chatBox = document.getElementById('chat-messages');
-            const bubble = document.createElement('div');
-            bubble.className = `message-bubble ${isMe ? 'my-message' : 'other-message'}`;
-            
-            let content = '';
-            if (!isMe) content += `<span class="msg-sender">${sender}</span>`;
-            content += `<span>${text}</span>`;
-            bubble.innerHTML = content;
-
-            chatBox.appendChild(bubble);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
     </script>
 </body>
 </html>
