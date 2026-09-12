@@ -17,7 +17,7 @@
         }
 
         body { font-family: Tahoma, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); text-align: center; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 94vh; max-height: 800px; box-sizing: border-box; }
+        .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; height: 94vh; max-height: 820px; box-sizing: border-box; }
         
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
         
@@ -26,6 +26,12 @@
         .group-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--tg-gray); }
         .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 12px; cursor: pointer; padding: 0; width: auto; }
         
+        /* لیست اعضای آنلاین گروه */
+        .members-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin-bottom: 6px; text-align: right; max-height: 80px; overflow-y: auto; }
+        .members-title { font-size: 11px; color: var(--tg-gray); margin-bottom: 3px; font-weight: bold; }
+        .member-chip { display: inline-block; background: #334155; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin: 2px; cursor: pointer; transition: 0.2s; }
+        .member-chip:hover { background: #386799; color: #fff; }
+
         input, button { width: 100%; padding: 10px 12px; margin: 6px 0; border-radius: 8px; border: none; font-size: 14px; box-sizing: border-box; }
         input { background: #0b1329; color: #fff; border: 1px solid #334155; text-align: right; outline: none; }
         input:focus { border-color: #38bdf8; }
@@ -40,24 +46,12 @@
             padding: 5px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 6px;
         }
 
-        .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; }
-        .game-selector button { background: #334155; font-size: 10px; padding: 6px 2px; margin: 0; }
-        .game-selector button.active { background: #2b5278; border-bottom: 2px solid #38bdf8; }
+        .game-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-bottom: 6px; }
+        .game-selector button { background: #334155; font-size: 11px; padding: 6px; margin: 0; }
 
         .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
         .hidden { display: none !important; }
         #status-msg { font-weight: bold; margin: 3px 0; color: #38bdf8; font-size: 11px; }
-        
-        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px auto; max-width: 180px; }
-        .xo-cell { background: #0b1329; border: 1px solid #334155; height: 45px; font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
-
-        .dice-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin: 4px 0; }
-        .dice-result-text { font-size: 11px; line-height: 1.4; text-align: right; margin-top: 3px; }
-
-        .hokm-box { background: rgba(0,0,0,0.2); padding: 6px; border-radius: 8px; margin: 4px 0; text-align: center; }
-        .suit-btn { display: inline-block; width: 32px; height: 32px; margin: 2px; font-size: 15px; background: #334155; border-radius: 6px; border: none; cursor: pointer; }
-        .cards-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; max-height: 100px; overflow-y: auto; }
-        .card-item { background: #fff; color: #000; width: 32px; height: 44px; border-radius: 4px; font-weight: bold; font-size: 11px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
 
         .gift-box { background: rgba(255,255,255,0.03); padding: 5px; border-radius: 6px; margin-top: 5px; display: flex; gap: 4px; align-items: center; }
         .gift-box input { margin: 0; padding: 5px; font-size: 11px; }
@@ -142,63 +136,17 @@
                 </div>
             </div>
 
-            <div class="game-selector">
-                <button id="btn-rps" class="active" onclick="switchGame('rps')">سنگ کاغذ</button>
-                <button id="btn-xo" onclick="switchGame('xo')">دوز XO</button>
-                <button id="btn-dice" onclick="switchGame('dice')">تاس 🎲</button>
-                <button id="btn-hokm" onclick="switchGame('hokm')">حکم ♠️</button>
+            <!-- لیست اعضای آنلاین گروه (برای دعوت به بازی) -->
+            <div class="members-box">
+                <div class="members-title">👥 اعضای آنلاین گروه (کلیک برای چالش بازی):</div>
+                <div id="members-list"></div>
             </div>
 
             <div class="stats">
                 <div>💰 سکه شما: <span id="my-coins">300</span></div>
-                <div id="player-count-box">👥 نفرات: <span id="player-count">1</span>/4</div>
             </div>
 
-            <div id="status-msg">در انتظار دوستان...</div>
-
-            <!-- بازی‌ها -->
-            <div id="rps-section">
-                <div id="controls" class="hidden">
-                    <button onclick="makeMove('سنگ')">✊ سنگ</button>
-                    <button onclick="makeMove('کاغذ')">✋ کاغذ</button>
-                    <button onclick="makeMove('قیچی')">✌️ قیچی</button>
-                </div>
-                <div id="result-box" class="hidden" style="font-size: 11px; margin: 3px 0;"></div>
-            </div>
-
-            <div id="xo-section" class="hidden">
-                <div class="xo-grid" id="xo-board">
-                    <div class="xo-cell" onclick="makeXoMove(0)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(1)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(2)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(3)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(4)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(5)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(6)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(7)"></div>
-                    <div class="xo-cell" onclick="makeXoMove(8)"></div>
-                </div>
-            </div>
-
-            <div id="dice-section" class="hidden">
-                <div class="dice-box">
-                    <button id="btn-roll" onclick="rollDice()">🎲 انداختن تاس</button>
-                    <div id="dice-result" class="dice-result-text">هنوز تاسی انداخته نشده.</div>
-                </div>
-            </div>
-
-            <div id="hokm-section" class="hidden">
-                <div class="hokm-box">
-                    <div id="hokm-info" style="font-size: 11px;">در انتظار تکمیل ۴ بازیکن...</div>
-                    <div id="hokm-controls" class="hidden">
-                        <button class="suit-btn" onclick="selectHokm('♠️')">♠️</button>
-                        <button class="suit-btn" onclick="selectHokm('♥️')">♥️</button>
-                        <button class="suit-btn" onclick="selectHokm('♦️')">♦️</button>
-                        <button class="suit-btn" onclick="selectHokm('♣️')">♣️</button>
-                    </div>
-                    <div id="my-cards" class="cards-container"></div>
-                </div>
-            </div>
+            <div id="status-msg">برای شروع بازی روی نام اعضای آنلاین کلیک کنید.</div>
 
             <!-- هدیه سکه -->
             <div class="gift-box">
@@ -230,7 +178,6 @@
             if (myName) {
                 document.getElementById('auth-section').classList.add('hidden');
                 if (currentRoom) {
-                    // اگر کاربر قبل از رفرش داخل اتاق بوده، مستقیم بفرستش داخل همون اتاق
                     socket.emit('join-room', { roomId: currentRoom, username: myName });
                     document.getElementById('game-room').classList.remove('hidden');
                     document.getElementById('btn-leave').classList.remove('hidden');
@@ -325,7 +272,7 @@
                 return;
             }
             currentRoom = code;
-            localStorage.setItem('chat_game_room', currentRoom); // ذخیره اتاق در مرورگر
+            localStorage.setItem('chat_game_room', currentRoom);
             socket.emit('join-room', { roomId: currentRoom, username: myName });
 
             document.getElementById('lobby').classList.add('hidden');
@@ -335,11 +282,12 @@
 
         function leaveGroup() {
             currentRoom = '';
-            localStorage.removeItem('chat_game_room'); // حذف اتاق از حافظه
+            localStorage.removeItem('chat_game_room');
             document.getElementById('game-room').classList.add('hidden');
             document.getElementById('btn-leave').classList.add('hidden');
             document.getElementById('lobby').classList.remove('hidden');
             document.getElementById('room-code').value = '';
+            location.reload();
         }
 
         function openEditProfile() {
@@ -362,6 +310,43 @@
         socket.on('room-profile', (profile) => {
             document.getElementById('group-title-view').innerText = profile.title;
             document.getElementById('group-desc-view').innerText = profile.description;
+        });
+
+        // دریافت لیست اعضای آنلاین و نمایش به صورت چیپ
+        socket.on('update-members', (members) => {
+            const listEl = document.getElementById('members-list');
+            listEl.innerHTML = '';
+            members.forEach(m => {
+                if (m.username !== myName) {
+                    const chip = document.createElement('span');
+                    chip.className = 'member-chip';
+                    chip.innerText = `👤 ${m.username}`;
+                    chip.onclick = () => inviteToGame(m.id, m.username);
+                    listEl.appendChild(chip);
+                }
+            });
+        });
+
+        // دعوت از کاربر دیگر به بازی
+        function inviteToGame(targetId, targetName) {
+            const gameChoice = prompt(`انتخاب بازی برای دعوت ${targetName}:\n1. سنگ‌کاغذ‌قیچی (rps)\n2. دوز (xo)\n\nنام یا شماره بازی را وارد کنید:`, 'rps');
+            if (!gameChoice) return;
+            let gameType = (gameChoice.includes('xo') || gameChoice === '2') ? 'xo' : 'rps';
+            
+            socket.emit('challenge-player', { targetId, gameType, roomId: currentRoom });
+            alert(`دعوت‌نامه بازی به ${targetName} ارسال شد.`);
+        }
+
+        // دریافت دعوت‌نامه بازی از دیگران
+        socket.on('game-challenge-received', (data) => {
+            let accept = confirm(`${data.challengerName} شما را به بازی ${data.gameType} دعوت کرده است. قبول می‌کنید؟`);
+            if (accept) {
+                socket.emit('accept-challenge', { challengerId: data.challengerId, gameType: data.gameType, roomId: data.roomId });
+            }
+        });
+
+        socket.on('challenge-accepted', (data) => {
+            alert('دعوت شما پذیرفته شد! بازی آغاز می‌شود.');
         });
 
         function sendCoinGift() {
@@ -387,160 +372,6 @@
             document.getElementById('my-coins').innerText = data.coins;
         });
 
-        socket.on('update-players', (data) => {
-            document.getElementById('player-count').innerText = data.count;
-        });
-
-        socket.on('start-game', (data) => {
-            document.getElementById('status-msg').innerText = data.msg;
-            if (currentGame === 'rps') {
-                document.getElementById('controls').classList.remove('hidden');
-            }
-        });
-
-        socket.on('room-full', (msg) => {
-            alert(msg);
-            leaveGroup();
-        });
-
-        let currentGame = 'rps';
-        function switchGame(gameType) {
-            currentGame = gameType;
-            document.getElementById('btn-rps').classList.remove('active');
-            document.getElementById('btn-xo').classList.remove('active');
-            document.getElementById('btn-dice').classList.remove('active');
-            document.getElementById('btn-hokm').classList.remove('active');
-
-            document.getElementById('rps-section').classList.add('hidden');
-            document.getElementById('xo-section').classList.add('hidden');
-            document.getElementById('dice-section').classList.add('hidden');
-            document.getElementById('hokm-section').classList.add('hidden');
-
-            if (gameType === 'rps') {
-                document.getElementById('btn-rps').classList.add('active');
-                document.getElementById('rps-section').classList.remove('hidden');
-            } else if (gameType === 'xo') {
-                document.getElementById('btn-xo').classList.add('active');
-                document.getElementById('xo-section').classList.remove('hidden');
-            } else if (gameType === 'dice') {
-                document.getElementById('btn-dice').classList.add('active');
-                document.getElementById('dice-section').classList.remove('hidden');
-            } else if (gameType === 'hokm') {
-                document.getElementById('btn-hokm').classList.add('active');
-                document.getElementById('hokm-section').classList.remove('hidden');
-            }
-            socket.emit('change-game', { roomId: currentRoom, gameType });
-        }
-
-        socket.on('game-changed', (data) => {
-            currentGame = data.gameType;
-            document.getElementById('btn-rps').classList.remove('active');
-            document.getElementById('btn-xo').classList.remove('active');
-            document.getElementById('btn-dice').classList.remove('active');
-            document.getElementById('btn-hokm').classList.remove('active');
-
-            document.getElementById('rps-section').classList.add('hidden');
-            document.getElementById('xo-section').classList.add('hidden');
-            document.getElementById('dice-section').classList.add('hidden');
-            document.getElementById('hokm-section').classList.add('hidden');
-
-            if (data.gameType === 'rps') {
-                document.getElementById('btn-rps').classList.add('active');
-                document.getElementById('rps-section').classList.remove('hidden');
-                document.getElementById('controls').classList.remove('hidden');
-            } else if (data.gameType === 'xo') {
-                document.getElementById('btn-xo').classList.add('active');
-                document.getElementById('xo-section').classList.remove('hidden');
-                updateXoBoard(data.xoBoard, data.xoTurn);
-            } else if (data.gameType === 'dice') {
-                document.getElementById('btn-dice').classList.add('active');
-                document.getElementById('dice-section').classList.remove('hidden');
-            } else if (data.gameType === 'hokm') {
-                document.getElementById('btn-hokm').classList.add('active');
-                document.getElementById('hokm-section').classList.remove('hidden');
-            }
-        });
-
-        socket.on('hokm-deal-first', (data) => {
-            renderMyCards(data.hand);
-            if (data.isHakem) {
-                document.getElementById('hokm-controls').classList.remove('hidden');
-                document.getElementById('hokm-info').innerText = 'شما حاکم هستید!';
-            } else {
-                document.getElementById('hokm-controls').classList.add('hidden');
-                document.getElementById('hokm-info').innerText = `حاکم (${data.hakemName}) در حال انتخاب...`;
-            }
-        });
-
-        function selectHokm(suit) {
-            socket.emit('select-hokm', { roomId: currentRoom, suit });
-            document.getElementById('hokm-controls').classList.add('hidden');
-        }
-
-        socket.on('hokm-game-started', (data) => {
-            renderMyCards(data.hand);
-            document.getElementById('hokm-info').innerText = `حکم: ${data.suit}`;
-        });
-
-        function renderMyCards(hand) {
-            const container = document.getElementById('my-cards');
-            container.innerHTML = '';
-            hand.forEach(card => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card-item';
-                if (card.suit === '♥️' || card.suit === '♦️') cardEl.style.color = '#ef4444';
-                cardEl.innerText = card.name;
-                cardEl.onclick = () => socket.emit('play-card', { roomId: currentRoom, card });
-                container.appendChild(cardEl);
-            });
-        }
-
-        function makeMove(move) {
-            document.getElementById('controls').classList.add('hidden');
-            socket.emit('make-move', { roomId: currentRoom, move: move });
-        }
-
-        socket.on('round-result', (data) => {
-            document.getElementById('my-coins').innerText = data.myCoins;
-            const resBox = document.getElementById('result-box');
-            resBox.classList.remove('hidden');
-            resBox.innerHTML = `شما: ${data.myMove} | حریف: ${data.oppMove} <br><b style="color: #4ade80;">${data.result}</b>`;
-            document.getElementById('controls').classList.remove('hidden');
-        });
-
-        function makeXoMove(index) {
-            if (currentGame !== 'xo') return;
-            socket.emit('make-xo-move', { roomId: currentRoom, index });
-        }
-
-        socket.on('xo-update', (data) => { updateXoBoard(data.board, data.xoTurn); });
-        socket.on('xo-game-over', (data) => {
-            updateXoBoard(data.board, null);
-            document.getElementById('my-coins').innerText = data.myCoins1;
-        });
-
-        function updateXoBoard(board, turn) {
-            const cells = document.querySelectorAll('.xo-cell');
-            cells.forEach((cell, idx) => { cell.innerText = board[idx]; });
-        }
-
-        function rollDice() {
-            document.getElementById('btn-roll').setAttribute('disabled', 'true');
-            socket.emit('roll-dice', { roomId: currentRoom });
-        }
-
-        socket.on('dice-round-result', (data) => {
-            let text = '<b>نتایج تاس:</b><br>';
-            for (let pId in data.rolls) {
-                text += `${data.names[pId]}: ${data.rolls[pId]}<br>`;
-            }
-            document.getElementById('dice-result').innerHTML = text;
-            if (data.scores[socket.id] !== undefined) {
-                document.getElementById('my-coins').innerText = data.scores[socket.id];
-            }
-            setTimeout(() => { document.getElementById('btn-roll').removeAttribute('disabled'); }, 2000);
-        });
-
         function checkEnter(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -553,12 +384,10 @@
             const msg = input.value.trim();
             if (!msg) return;
 
-            // پیام مستقیماً به سرور فرستاده می‌شود و سرور به همه (از جمله خودمان) پخش می‌کند
             socket.emit('send-message', { roomId: currentRoom, message: msg, senderName: myName });
             input.value = '';
         }
 
-        // دریافت پیام از سرور (برای همه اعضا از جمله فرستنده)
         socket.on('receive-message', (data) => {
             const isMe = (data.senderName === myName);
             appendMessage(data.senderName, data.message, isMe);
