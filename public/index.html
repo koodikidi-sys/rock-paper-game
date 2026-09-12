@@ -10,10 +10,10 @@
         .container { background-color: var(--tg-panel); padding: 16px; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; height: 95vh; max-height: 850px; box-sizing: border-box; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
         h2 { margin: 0; font-size: 15px; color: #38bdf8; }
+        .donate-header-btn { background-color: #db2777; color: white; text-decoration: none; display: block; padding: 5px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 5px; }
         .group-profile-box { background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 8px; margin-bottom: 5px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
         .group-info h3 { margin: 0; font-size: 13px; color: #38bdf8; }
         .group-info p { margin: 2px 0 0 0; font-size: 10px; color: var(--tg-gray); }
-        .edit-profile-btn { background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 0; }
         .members-box { background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; margin-bottom: 5px; text-align: right; max-height: 70px; overflow-y: auto; }
         .members-title { font-size: 10px; color: var(--tg-gray); margin-bottom: 2px; font-weight: bold; }
         .member-item { font-size: 11px; margin: 3px 0; display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 3px 6px; border-radius: 6px; }
@@ -45,6 +45,8 @@
             <h2>گپ و بازی آنلاین 💬</h2>
             <button id="btn-leave" class="btn-danger hidden" onclick="leaveGroup()">خروج 🚪</button>
         </div>
+
+        <a href="https://daramet.com/yasinafzhooli" target="_blank" class="donate-header-btn">💖 حمایت مالی</a>
 
         <div id="auth-section">
             <div id="login-form">
@@ -78,8 +80,16 @@
                 </div>
             </div>
 
+            <!-- پنل گزینه‌های ۴ گانه بازی -->
+            <div style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 8px; margin-bottom: 5px; text-align: right;">
+                <div style="font-size: 11px; color: #38bdf8; font-weight: bold; margin-bottom: 4px;">🎮 انتخاب حالت بازی:</div>
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px; margin: 2px 0;" onclick="openBotGame()">۱. بازی تک‌نفره (با ربات)</button>
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px; margin: 2px 0;" onclick="joinQueue('dice3')">۳. ورود به صف تاس ۳ نفره</button>
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px; margin: 2px 0;" onclick="joinQueue('hokm4')">۴. ورود به صف حکم ۴ نفره</button>
+            </div>
+
             <div class="members-box">
-                <div class="members-title">👥 اعضای آنلاین (انتخاب بازی دلخواه):</div>
+                <div class="members-title">👥 ۲. بازی دونفره (کلیک روی دوست برای دعوت):</div>
                 <div id="members-list"></div>
             </div>
 
@@ -89,12 +99,14 @@
 
             <div id="game-arena-box" class="game-arena hidden">
                 <div id="arena-status" style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 5px;"></div>
+                
                 <div id="arena-rps" class="hidden">
-                    <button onclick="playRps('سنگ')">✊ سنگ</button>
-                    <button onclick="playRps('کاغذ')">✋ کاغذ</button>
-                    <button onclick="playRps('قیچی')">✌️ قیچی</button>
+                    <button onclick="playRpsAction('سنگ')">✊ سنگ</button>
+                    <button onclick="playRpsAction('کاغذ')">✋ کاغذ</button>
+                    <button onclick="playRpsAction('قیچی')">✌️ قیچی</button>
                     <div id="rps-res" style="font-size: 11px; margin-top: 4px;"></div>
                 </div>
+
                 <div id="arena-xo" class="hidden">
                     <div class="xo-grid" id="xo-board">
                         <div class="xo-cell" onclick="playXo(0)"></div>
@@ -108,10 +120,12 @@
                         <div class="xo-cell" onclick="playXo(8)"></div>
                     </div>
                 </div>
+
                 <div id="arena-dice" class="hidden">
                     <button onclick="rollDice()">🎲 انداختن تاس</button>
                     <div id="dice-res" style="font-size: 11px; margin-top: 4px;"></div>
                 </div>
+
                 <button class="btn-secondary" onclick="closeArena()" style="padding: 4px; font-size: 10px; margin-top: 5px;">بستن میز بازی</button>
             </div>
 
@@ -131,6 +145,7 @@
         let currentRoom = localStorage.getItem('chat_game_room') || '';
         let myName = localStorage.getItem('chat_game_user') || '';
         let activeSessionId = null;
+        let isBotMode = false;
 
         window.onload = () => {
             if (myName) {
@@ -174,11 +189,7 @@
             }
         }
 
-        function logoutUser() {
-            localStorage.clear();
-            location.reload();
-        }
-
+        function logoutUser() { localStorage.clear(); location.reload(); }
         function connectRoom() {
             let code = document.getElementById('room-code').value.trim();
             if (!code) return;
@@ -189,11 +200,7 @@
             document.getElementById('game-room').classList.remove('hidden');
             document.getElementById('btn-leave').classList.remove('hidden');
         }
-
-        function leaveGroup() {
-            localStorage.removeItem('chat_game_room');
-            location.reload();
-        }
+        function leaveGroup() { localStorage.removeItem('chat_game_room'); location.reload(); }
 
         socket.on('room-profile', p => {
             document.getElementById('group-title-view').innerText = p.title;
@@ -207,21 +214,55 @@
                 if (m.username !== myName) {
                     let div = document.createElement('div');
                     div.className = 'member-item';
-                    div.innerHTML = `<span>👤 ${m.username}</span> <button style="width:auto; padding:2px 6px; font-size:10px;" onclick="openGameMenu('${m.id}', '${m.username}')">بازی 🎮</button>`;
+                    div.innerHTML = `<span>👤 ${m.username}</span> <button style="width:auto; padding:2px 6px; font-size:10px;" onclick="challengeFriend('${m.id}', '${m.username}')">دعوت 🎮</button>`;
                     list.appendChild(div);
                 }
             });
         });
 
-        function openGameMenu(targetId, targetName) {
-            let g = prompt(`انتخاب نوع بازی با ${targetName}:\n1. دوز (xo)\n2. سنگ‌کاغذ‌قیچی (rps)\n3. تاس (dice)`, 'xo');
+        // گزینه ۱: بازی با ربات
+        function openBotGame() {
+            isBotMode = true;
+            document.getElementById('game-arena-box').classList.remove('hidden');
+            document.getElementById('arena-rps').classList.remove('hidden');
+            document.getElementById('arena-xo').classList.add('hidden');
+            document.getElementById('arena-dice').classList.add('hidden');
+            document.getElementById('arena-status').innerText = 'بازی با ربات (سنگ کاغذ قیچی)';
+            document.getElementById('rps-res').innerText = '';
+        }
+
+        // گزینه ۲: دعوت دوست
+        function challengeFriend(targetId, targetName) {
+            let g = prompt(`انتخاب بازی دونفره با ${targetName}:\n1. دوز (xo)\n2. سنگ‌کاغذ‌قیچی (rps)\n3. تاس (dice)`, '1');
             if (!g) return;
             let gameType = g === '2' || g.includes('rps') ? 'rps' : (g === '3' || g.includes('dice') ? 'dice' : 'xo');
-            socket.emit('start-session', { roomId: currentRoom, gameType, participants: [socket.id, targetId] });
+            socket.emit('challenge-player', { targetId, gameType, roomId: currentRoom });
+            alert('درخواست بازی ارسال شد.');
         }
+
+        socket.on('game-challenge-received', d => {
+            if (confirm(`${d.challengerName} شما را به بازی ${d.gameType} دعوت کرده است. قبول می‌کنید؟`)) {
+                socket.emit('accept-challenge', { challengerId: d.challengerId, gameType: d.gameType, roomId: currentRoom });
+            }
+        });
+
+        // گزینه ۳ و ۴: ورود به صف
+        function joinQueue(gameType) {
+            socket.emit('join-queue', { gameType, roomId: currentRoom });
+            document.getElementById('game-arena-box').classList.remove('hidden');
+            document.getElementById('arena-rps').classList.add('hidden');
+            document.getElementById('arena-xo').classList.add('hidden');
+            document.getElementById('arena-dice').classList.add('hidden');
+            document.getElementById('arena-status').innerText = 'در حال جستجو برای تکمیل ظرفیت...';
+        }
+
+        socket.on('queue-status', d => {
+            document.getElementById('arena-status').innerText = d.msg;
+        });
 
         socket.on('enter-session', data => {
             activeSessionId = data.sessionId;
+            isBotMode = false;
             document.getElementById('game-arena-box').classList.remove('hidden');
             document.getElementById('arena-rps').classList.add('hidden');
             document.getElementById('arena-xo').classList.add('hidden');
@@ -229,17 +270,32 @@
 
             if (data.gameType === 'xo') {
                 document.getElementById('arena-xo').classList.remove('hidden');
-                document.getElementById('arena-status').innerText = 'بازی دوز جریان دارد';
+                document.getElementById('arena-status').innerText = 'بازی دوز شروع شد!';
                 document.querySelectorAll('.xo-cell').forEach(c => c.innerText = '');
             } else if (data.gameType === 'rps') {
                 document.getElementById('arena-rps').classList.remove('hidden');
-                document.getElementById('arena-status').innerText = 'سنگ کاغذ قیچی';
+                document.getElementById('arena-status').innerText = 'بازی سنگ کاغذ قیچی';
                 document.getElementById('rps-res').innerText = '';
-            } else if (data.gameType === 'dice') {
+            } else if (data.gameType === 'dice3' || data.gameType === 'dice') {
                 document.getElementById('arena-dice').classList.remove('hidden');
-                document.getElementById('arena-status').innerText = 'مسابقه تاس';
+                document.getElementById('arena-status').innerText = 'بازی تاس گروهی';
                 document.getElementById('dice-res').innerText = '';
+            } else if (data.gameType === 'hokm4') {
+                document.getElementById('arena-status').innerText = 'ظرفیت حکم تکمیل شد! بازی حکم در حال اجراست...';
             }
+        });
+
+        function playRpsAction(move) {
+            if (isBotMode) {
+                socket.emit('play-bot', { gameType: 'rps', move });
+            } else {
+                socket.emit('session-rps-move', { roomId: currentRoom, sessionId: activeSessionId, move });
+            }
+        }
+
+        socket.on('bot-rps-result', d => {
+            document.getElementById('rps-res').innerHTML = `شما: ${d.myMove} | ربات: ${d.botMove}<br><b>${d.result}</b>`;
+            document.getElementById('my-coins').innerText = d.newCoins;
         });
 
         function playXo(index) {
@@ -254,23 +310,13 @@
             document.getElementById('arena-status').innerText = d.msg;
         });
 
-        function playRps(move) {
-            socket.emit('session-rps-move', { roomId: currentRoom, sessionId: activeSessionId, move });
-            document.getElementById('arena-status').innerText = 'منتظر حریف...';
-        }
-        socket.on('session-rps-result', d => {
-            document.getElementById('rps-res').innerHTML = `انتخاب شما: ${d.myMove} | حریف: ${d.oppMove}<br><b>${d.result}</b>`;
-            document.getElementById('my-coins').innerText = d.newCoins;
-        });
-
         function rollDice() {
             socket.emit('session-dice-roll', { roomId: currentRoom, sessionId: activeSessionId });
         }
         socket.on('session-dice-result', d => {
-            let txt = 'نتایج:<br>';
+            let txt = 'نتایج تاس:<br>';
             for (let id in d.rolls) txt += `${d.names[id]}: ${d.rolls[id]}<br>`;
             document.getElementById('dice-res').innerHTML = txt;
-            document.getElementById('my-coins').innerText = d.newCoins;
         });
 
         function closeArena() { document.getElementById('game-arena-box').classList.add('hidden'); }
