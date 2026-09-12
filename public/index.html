@@ -8,7 +8,6 @@
         :root { 
             --tg-bg: #0b0f19; 
             --tg-panel: rgba(30, 41, 59, 0.7); 
-            --tg-panel-solid: #1e293b;
             --tg-accent: #38bdf8; 
             --tg-accent-hover: #0ea5e9; 
             --tg-my-message: rgba(43, 82, 120, 0.85); 
@@ -37,7 +36,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px; 
+            padding: 12px; 
             border-radius: 16px; 
             width: 100%; 
             max-width: 420px; 
@@ -45,12 +44,12 @@
             display: flex; 
             flex-direction: column; 
             height: 96vh; 
-            max-height: 800px; 
+            max-height: 820px; 
             box-sizing: border-box; 
             overflow: hidden;
         }
 
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; flex-shrink: 0; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; flex-shrink: 0; }
         h2 { margin: 0; font-size: 14px; color: var(--tg-accent); }
         
         .donate-header-btn { 
@@ -58,29 +57,29 @@
             color: white; 
             text-decoration: none; 
             display: block; 
-            padding: 5px; 
+            padding: 4px; 
             border-radius: 8px; 
             font-size: 11px; 
             font-weight: bold; 
-            margin-bottom: 6px; 
+            margin-bottom: 5px; 
             flex-shrink: 0;
             box-shadow: 0 4px 10px rgba(219,39,119,0.3);
         }
 
-        .group-profile-box { background: rgba(0,0,0,0.25); padding: 5px 8px; border-radius: 8px; margin-bottom: 5px; text-align: right; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .group-profile-box { background: rgba(0,0,0,0.25); padding: 4px 8px; border-radius: 8px; margin-bottom: 4px; text-align: right; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .group-info h3 { margin: 0; font-size: 12px; color: var(--tg-accent); }
         .group-info p { margin: 2px 0 0 0; font-size: 10px; color: var(--tg-gray); }
 
-        .game-options-panel { background: rgba(0,0,0,0.25); padding: 6px; border-radius: 8px; margin-bottom: 5px; text-align: right; flex-shrink: 0; }
-        .game-options-title { font-size: 10px; color: var(--tg-accent); font-weight: bold; margin-bottom: 3px; }
-        .game-btn { background: rgba(51, 65, 85, 0.8); font-size: 10px; padding: 4px 6px; margin: 2px 0; border-radius: 6px; text-align: right; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
+        .game-options-panel { background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 4px; text-align: right; flex-shrink: 0; }
+        .game-options-title { font-size: 10px; color: var(--tg-accent); font-weight: bold; margin-bottom: 2px; }
+        .game-btn { background: rgba(51, 65, 85, 0.8); font-size: 10px; padding: 3px 6px; margin: 2px 0; border-radius: 6px; text-align: right; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
         .game-btn:hover { background: var(--tg-accent); color: #0f172a; }
 
-        .members-box { background: rgba(0,0,0,0.25); padding: 5px; border-radius: 8px; margin-bottom: 5px; text-align: right; max-height: 60px; overflow-y: auto; flex-shrink: 0; }
+        .members-box { background: rgba(0,0,0,0.25); padding: 4px; border-radius: 8px; margin-bottom: 4px; text-align: right; max-height: 55px; overflow-y: auto; flex-shrink: 0; }
         .members-title { font-size: 10px; color: var(--tg-gray); margin-bottom: 2px; font-weight: bold; }
         .member-item { font-size: 10px; margin: 2px 0; display: flex; justify-content: space-between; align-items: center; background: rgba(51, 65, 85, 0.6); padding: 2px 6px; border-radius: 4px; }
 
-        input, button { width: 100%; padding: 8px 10px; margin: 4px 0; border-radius: 8px; border: none; font-size: 12px; box-sizing: border-box; }
+        input, button { width: 100%; padding: 7px 10px; margin: 4px 0; border-radius: 8px; border: none; font-size: 12px; box-sizing: border-box; }
         input { background: rgba(11, 19, 41, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); text-align: right; outline: none; }
         input:focus { border-color: var(--tg-accent); }
         
@@ -89,14 +88,17 @@
         .btn-danger { background-color: #ef4444; color: white; font-size: 10px; padding: 3px 6px; width: auto; margin: 0; }
         .btn-secondary { background-color: rgba(51, 65, 85, 0.9); color: white; }
         
-        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 8px; margin-bottom: 5px; font-size: 11px; flex-shrink: 0; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 8px; margin-bottom: 4px; font-size: 11px; flex-shrink: 0; }
         .hidden { display: none !important; }
 
-        .game-arena { background: rgba(11, 19, 41, 0.9); border: 1px solid rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; margin-bottom: 5px; text-align: center; flex-shrink: 0; }
-        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px auto; max-width: 140px; }
-        .xo-cell { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); height: 40px; font-size: 18px; font-weight: bold; color: var(--tg-accent); display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
+        .gift-box { background: rgba(255,255,255,0.03); padding: 4px; border-radius: 6px; margin-bottom: 4px; display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+        .gift-box input { margin: 0; padding: 5px; font-size: 11px; }
+        .gift-box button { margin: 0; padding: 5px; font-size: 11px; width: 70px; background-color: #10b981; color: white; }
 
-        /* بخش چت کاملاً ثابت و مهارشده درون کادر بدون بیرون‌زدگی */
+        .game-arena { background: rgba(11, 19, 41, 0.9); border: 1px solid rgba(255,255,255,0.1); padding: 6px; border-radius: 10px; margin-bottom: 4px; text-align: center; flex-shrink: 0; }
+        .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 4px auto; max-width: 130px; }
+        .xo-cell { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size: 16px; font-weight: bold; color: var(--tg-accent); display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 6px; }
+
         .chat-container { 
             display: flex; 
             flex-direction: column; 
@@ -104,8 +106,8 @@
             min-height: 0; 
             background: rgba(11, 19, 41, 0.6); 
             border-radius: 10px; 
-            padding: 6px; 
-            margin-top: 4px; 
+            padding: 5px; 
+            margin-bottom: 4px; 
             border: 1px solid rgba(255,255,255,0.05); 
             overflow: hidden; 
         }
@@ -130,8 +132,12 @@
         .msg-sender { font-size: 9px; color: var(--tg-accent); margin-bottom: 2px; font-weight: bold; display: block; }
         
         .chat-input-row { display: flex; gap: 4px; margin: 0; flex-shrink: 0; }
-        .chat-input-row input { text-align: right; padding: 6px 8px; margin: 0; font-size: 11px; }
-        .chat-input-row button { width: 50px; margin: 0; padding: 6px; font-size: 11px; border-radius: 6px; }
+        .chat-input-row input { text-align: right; padding: 5px 7px; margin: 0; font-size: 11px; }
+        .chat-input-row button { width: 50px; margin: 0; padding: 5px; font-size: 11px; border-radius: 6px; }
+
+        .footer-credit { font-size: 9px; color: var(--tg-gray); margin-top: 2px; flex-shrink: 0; }
+        .footer-credit a { color: var(--tg-accent); text-decoration: none; font-weight: bold; }
+        .footer-credit a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -191,14 +197,20 @@
                 <div>💰 سکه: <span id="my-coins">300</span></div>
             </div>
 
+            <div class="gift-box">
+                <input type="text" id="gift-user" placeholder="نام کاربری دوست..." style="flex: 2;">
+                <input type="number" id="gift-amount" placeholder="مقدار" style="flex: 1;">
+                <button onclick="sendCoinGift()">هدیه 🎁</button>
+            </div>
+
             <div id="game-arena-box" class="game-arena hidden">
                 <div id="arena-status" style="font-size: 11px; font-weight: bold; color: var(--tg-accent); margin-bottom: 4px;"></div>
                 
                 <div id="arena-rps" class="hidden">
-                    <button style="padding:5px; font-size:11px; width:auto;" onclick="playRpsAction('سنگ')">✊ سنگ</button>
-                    <button style="padding:5px; font-size:11px; width:auto;" onclick="playRpsAction('کاغذ')">✋ کاغذ</button>
-                    <button style="padding:5px; font-size:11px; width:auto;" onclick="playRpsAction('قیچی')">✌️ قیچی</button>
-                    <div id="rps-res" style="font-size: 10px; margin-top: 3px;"></div>
+                    <button style="padding:4px; font-size:10px; width:auto;" onclick="playRpsAction('سنگ')">✊ سنگ</button>
+                    <button style="padding:4px; font-size:10px; width:auto;" onclick="playRpsAction('کاغذ')">✋ کاغذ</button>
+                    <button style="padding:4px; font-size:10px; width:auto;" onclick="playRpsAction('قیچی')">✌️ قیچی</button>
+                    <div id="rps-res" style="font-size: 10px; margin-top: 2px;"></div>
                 </div>
 
                 <div id="arena-xo" class="hidden">
@@ -216,11 +228,11 @@
                 </div>
 
                 <div id="arena-dice" class="hidden">
-                    <button style="padding:5px; font-size:11px;" onclick="rollDice()">🎲 انداختن تاس</button>
-                    <div id="dice-res" style="font-size: 10px; margin-top: 3px;"></div>
+                    <button style="padding:4px; font-size:10px;" onclick="rollDice()">🎲 انداختن تاس</button>
+                    <div id="dice-res" style="font-size: 10px; margin-top: 2px;"></div>
                 </div>
 
-                <button class="btn-secondary" onclick="closeArena()" style="padding: 3px; font-size: 10px; margin-top: 4px;">بستن میز بازی</button>
+                <button class="btn-secondary" onclick="closeArena()" style="padding: 2px; font-size: 9px; margin-top: 3px;">بستن میز بازی</button>
             </div>
 
             <div class="chat-container">
@@ -230,6 +242,8 @@
                     <button onclick="sendMessage()">ارسال</button>
                 </div>
             </div>
+
+            <div class="footer-credit">ساخته شده با عشق توسط <a href="https://www.instagram.com/iyac1n/?utm_source=ig_web_button_share_sheet" target="_blank">یاسین افژولی</a></div>
         </div>
     </div>
 
@@ -408,6 +422,25 @@
             let txt = 'نتایج تاس:<br>';
             for (let id in d.rolls) txt += `${d.names[id]}: ${d.rolls[id]}<br>`;
             document.getElementById('dice-res').innerHTML = txt;
+        });
+
+        function sendCoinGift() {
+            let targetUser = document.getElementById('gift-user').value.trim();
+            let amount = document.getElementById('gift-amount').value.trim();
+            if (!targetUser || !amount) {
+                alert('لطفاً نام کاربری و مقدار سکه را وارد کنید.');
+                return;
+            }
+            socket.emit('transfer-coins', { targetUser, amount, senderUser: myName });
+        }
+
+        socket.on('transfer-result', d => {
+            alert(d.message);
+            if (d.success) {
+                document.getElementById('my-coins').innerText = d.newCoins;
+                document.getElementById('gift-user').value = '';
+                document.getElementById('gift-amount').value = '';
+            }
         });
 
         function closeArena() { document.getElementById('game-arena-box').classList.add('hidden'); }
