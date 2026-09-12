@@ -32,12 +32,32 @@ function saveData(file, data) {
 let users = loadData(USERS_FILE);
 let roomChats = loadData(CHATS_FILE);
 let groupProfiles = {};
-let rooms = {}; // ذخیره اطلاعات گروه‌ها و کاربران حاضر در آن‌ها
+let rooms = {};
+
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.json({ success: false, message: 'لطفاً نام کاربری و رمز عبور را وارد کنید.' });
+    }
+    if (users[username]) {
+        return res.json({ success: false, message: 'این نام کاربری قبلاً ثبت‌نام کرده است!' });
+    }
+    users[username] = { password, coins: 300 };
+    saveData(USERS_FILE, users);
+    res.json({ success: true, message: 'ثبت‌نام با موفقیت انجام شد!' });
+});
+
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!users[username] || users[username].password !== password) {
+        return res.json({ success: false, message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    }
+    res.json({ success: true, username, coins: users[username].coins });
+});
 
 io.on('connection', (socket) => {
     console.log('یک کاربر وصل شد:', socket.id);
 
-    // ورود به گروه (بدون محدودیت ظرفیت)
     socket.on('join-room', ({ roomId, username }) => {
         socket.rooms.forEach(r => {
             if (r !== socket.id) socket.leave(r);
@@ -64,7 +84,6 @@ io.on('connection', (socket) => {
 
         let room = rooms[roomId];
 
-        // اگر کاربر قبلاً در این روم ثبت نشده بود، اضافه‌اش کن
         if (!room.players.includes(socket.id)) {
             room.players.push(socket.id);
         }
@@ -83,7 +102,6 @@ io.on('connection', (socket) => {
             socket.emit('load-chat-history', roomChats[roomId]);
         }
 
-        // ارسال لیست جدید اعضای آنلاین به کل گروه
         updateRoomMembers(roomId);
     });
 
@@ -97,13 +115,11 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('update-members', memberList);
     }
 
-    // ارسال درخواست بازی به یک کاربر خاص در گروه
     socket.on('challenge-player', ({ targetId, gameType, roomId }) => {
         let room = rooms[roomId];
         if (!room) return;
         let challengerName = room.usernames[socket.id];
         
-        // ارسال دعوت‌نامه فقط به کاربر مورد نظر
         io.to(targetId).emit('game-challenge-received', {
             challengerId: socket.id,
             challengerName: challengerName,
@@ -112,12 +128,11 @@ io.on('connection', (socket) => {
         });
     });
 
-    // پذیرش یا رد درخواست بازی (در صورت پذیرش، یک فضای بازی دونفره بینشان شکل می‌گیرد)
     socket.on('accept-challenge', ({ challengerId, gameType, roomId }) => {
         io.to(challengerId).emit('challenge-accepted', { gameType, roomId });
         io.to(roomId).emit('receive-message', {
             senderName: 'سیستم',
-            message: `🎮 رقابت جدید در بازی ${gameType} آغاز شد!`
+            message: `🎮 دعوت به بازی ${gameType} پذیرفته شد!`
         });
     });
 
